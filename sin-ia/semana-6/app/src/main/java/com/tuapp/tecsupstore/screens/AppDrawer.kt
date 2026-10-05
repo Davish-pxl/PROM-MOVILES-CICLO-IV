@@ -1,10 +1,14 @@
 package com.tuapp.tecsupstore.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,32 +29,33 @@ fun AppDrawer(
     scope: CoroutineScope,
     navController: NavController,
     currentRoute: String?,
+    favoritosCount: Int = 0,
     content: @Composable () -> Unit
 ) {
     val purplePrimary = Color(0xFF4A148C)
-    val purpleLightBg = Color(0xFFECE6F0)
 
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet(
                 drawerContainerColor = Color.White,
-                modifier = Modifier.width(300.dp)
+                modifier = Modifier.width(310.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp)
                 ) {
+                    // Encabezado del usuario
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 12.dp),
+                            .padding(vertical = 16.dp, horizontal = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(48.dp)
+                                .size(56.dp)
                                 .clip(CircleShape)
                                 .background(Color(0xFFE8DEF8)),
                             contentAlignment = Alignment.Center
@@ -59,7 +64,7 @@ fun AppDrawer(
                                 text = "DV",
                                 fontWeight = FontWeight.Bold,
                                 color = purplePrimary,
-                                fontSize = 16.sp
+                                fontSize = 20.sp
                             )
                         }
 
@@ -72,6 +77,7 @@ fun AppDrawer(
                                 style = MaterialTheme.typography.titleMedium,
                                 color = Color.Black
                             )
+                            Spacer(modifier = Modifier.height(2.dp))
                             Text(
                                 text = "david@tecsup.edu.pe",
                                 style = MaterialTheme.typography.bodySmall,
@@ -81,120 +87,128 @@ fun AppDrawer(
                     }
 
                     HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 12.dp),
-                        thickness = 0.8.dp,
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = 1.dp,
                         color = Color.LightGray.copy(alpha = 0.5f)
                     )
 
-                    DrawerMenuItemCustom(
-                        label = "Inicio",
-                        isSelected = currentRoute == Screen.Home.route,
-                        purplePrimary = purplePrimary,
-                        purpleLightBg = purpleLightBg,
+                    // Opciones de navegación
+                    NavigationDrawerItem(
+                        label = { Text("Inicio", fontWeight = FontWeight.SemiBold) },
+                        selected = currentRoute == Screen.Home.route,
+                        icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = Color(0xFFECE6F0),
+                            selectedIconColor = purplePrimary,
+                            selectedTextColor = purplePrimary
+                        ),
                         onClick = {
                             scope.launch { drawerState.close() }
-                            navController.navigate(Screen.Home.route)
-                        }
+                            if (currentRoute != Screen.Home.route) {
+                                navController.navigate(Screen.Home.route) {
+                                    popUpTo(Screen.Home.route) { inclusive = true }
+                                }
+                            }
+                        },
+                        modifier = Modifier.padding(vertical = 4.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    DrawerMenuItemCustom(
-                        label = "Mis pedidos",
-                        isSelected = currentRoute == Screen.List.route || currentRoute == null,
-                        purplePrimary = purplePrimary,
-                        purpleLightBg = purpleLightBg,
+                    NavigationDrawerItem(
+                        label = { Text("Mis pedidos", fontWeight = FontWeight.SemiBold) },
+                        selected = currentRoute == Screen.List.route,
+                        icon = { Icon(Icons.Default.ShoppingCart, contentDescription = "Mis pedidos") },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = Color(0xFFECE6F0),
+                            selectedIconColor = purplePrimary,
+                            selectedTextColor = purplePrimary
+                        ),
                         onClick = {
                             scope.launch { drawerState.close() }
-                            navController.navigate(Screen.List.route)
-                        }
+                            if (currentRoute != Screen.List.route) {
+                                navController.navigate(Screen.List.route)
+                            }
+                        },
+                        modifier = Modifier.padding(vertical = 4.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    DrawerMenuItemCustom(
-                        label = "Favoritos",
-                        isSelected = false,
-                        purplePrimary = purplePrimary,
-                        purpleLightBg = purpleLightBg,
+                    NavigationDrawerItem(
+                        label = { Text("Favoritos", fontWeight = FontWeight.SemiBold) },
+                        selected = currentRoute == Screen.Favoritos.route,
+                        icon = { Icon(Icons.Default.Favorite, contentDescription = "Favoritos") },
+                        badge = {
+                            if (favoritosCount > 0) {
+                                Badge(
+                                    containerColor = purplePrimary,
+                                    contentColor = Color.White
+                                ) {
+                                    Text(
+                                        text = favoritosCount.toString(),
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp
+                                    )
+                                }
+                            }
+                        },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = Color(0xFFECE6F0),
+                            selectedIconColor = purplePrimary,
+                            selectedTextColor = purplePrimary
+                        ),
                         onClick = {
                             scope.launch { drawerState.close() }
-                        }
+                            if (currentRoute != Screen.Favoritos.route) {
+                                navController.navigate(Screen.Favoritos.route)
+                            }
+                        },
+                        modifier = Modifier.padding(vertical = 4.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    DrawerMenuItemCustom(
-                        label = "Perfil",
-                        isSelected = currentRoute == Screen.Profile.route,
-                        purplePrimary = purplePrimary,
-                        purpleLightBg = purpleLightBg,
+                    NavigationDrawerItem(
+                        label = { Text("Perfil", fontWeight = FontWeight.SemiBold) },
+                        selected = currentRoute == Screen.Profile.route,
+                        icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            selectedContainerColor = Color(0xFFECE6F0),
+                            selectedIconColor = purplePrimary,
+                            selectedTextColor = purplePrimary
+                        ),
                         onClick = {
                             scope.launch { drawerState.close() }
-                            navController.navigate(Screen.Profile.route)
-                        }
+                            if (currentRoute != Screen.Profile.route) {
+                                navController.navigate(Screen.Profile.route)
+                            }
+                        },
+                        modifier = Modifier.padding(vertical = 4.dp)
                     )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.weight(1f))
 
-                    DrawerMenuItemCustom(
-                        label = "Cerrar sesion",
-                        isSelected = false,
-                        purplePrimary = purplePrimary,
-                        purpleLightBg = purpleLightBg,
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = 1.dp,
+                        color = Color.LightGray.copy(alpha = 0.5f)
+                    )
+
+                    NavigationDrawerItem(
+                        label = { Text("Cerrar sesión", fontWeight = FontWeight.SemiBold) },
+                        selected = false,
+                        icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar sesión") },
+                        colors = NavigationDrawerItemDefaults.colors(
+                            unselectedIconColor = Color.Red,
+                            unselectedTextColor = Color.Red
+                        ),
                         onClick = {
                             scope.launch { drawerState.close() }
-                        }
+                            navController.navigate(Screen.Home.route) {
+                                popUpTo(0) { inclusive = true }
+                            }
+                        },
+                        modifier = Modifier.padding(vertical = 4.dp)
                     )
                 }
             }
         }
     ) {
         content()
-    }
-}
-
-@Composable
-private fun DrawerMenuItemCustom(
-    label: String,
-    isSelected: Boolean,
-    purplePrimary: Color,
-    purpleLightBg: Color,
-    onClick: () -> Unit
-) {
-    Surface(
-        onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        color = if (isSelected) purpleLightBg else Color.Transparent,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(52.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .border(
-                        width = 2.dp,
-                        color = if (isSelected) purplePrimary else Color.DarkGray,
-                        shape = CircleShape
-                    )
-            )
-
-            Spacer(modifier = Modifier.width(20.dp))
-
-            Text(
-                text = label,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                color = if (isSelected) purplePrimary else Color.DarkGray,
-                fontSize = 15.sp
-            )
-        }
     }
 }

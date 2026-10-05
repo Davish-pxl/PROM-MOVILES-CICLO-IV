@@ -5,8 +5,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,7 +24,12 @@ import com.tuapp.tecsupstore.model.Productos
 import com.tuapp.tecsupstore.navigation.Screen
 
 @Composable
-fun TarjetaProducto(producto: Productos, navController: NavController) {
+fun TarjetaProducto(
+    producto: Productos,
+    navController: NavController,
+    isFavorito: Boolean = false,
+    onToggleFavorito: () -> Unit = {}
+) {
     var menuDesplegado by remember { mutableStateOf(false) }
 
     Card(
@@ -72,7 +81,7 @@ fun TarjetaProducto(producto: Productos, navController: NavController) {
                 IconButton(onClick = { menuDesplegado = true }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Opciones"
+                        contentDescription = "Opciones del producto"
                     )
                 }
 
@@ -81,18 +90,44 @@ fun TarjetaProducto(producto: Productos, navController: NavController) {
                     onDismissRequest = { menuDesplegado = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("♥ Favoritos") },
-                        onClick = { menuDesplegado = false }
+                        text = { Text(if (isFavorito) "Quitar de Favoritos" else "Favoritos") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = if (isFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = "Favoritos",
+                                tint = if (isFavorito) Color.Red else MaterialTheme.colorScheme.onSurface
+                            )
+                        },
+                        onClick = {
+                            onToggleFavorito()
+                            menuDesplegado = false
+                        }
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
-                        text = { Text("↗ Compartir") },
-                        onClick = { menuDesplegado = false }
+                        text = { Text("Compartir") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Share,
+                                contentDescription = "Compartir"
+                            )
+                        },
+                        onClick = {
+                            menuDesplegado = false
+                        }
                     )
                     HorizontalDivider()
                     DropdownMenuItem(
-                        text = { Text("⚠ Reportar") },
-                        onClick = { menuDesplegado = false }
+                        text = { Text("Reportar") },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Warning,
+                                contentDescription = "Reportar"
+                            )
+                        },
+                        onClick = {
+                            menuDesplegado = false
+                        }
                     )
                 }
             }
