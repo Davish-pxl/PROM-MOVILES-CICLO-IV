@@ -182,7 +182,6 @@ fun ConfirmarCitaScreen(
                     }
                 }
             }
-
             Spacer(modifier = Modifier.height(20.dp))
 
             // Detalles de la Cita
@@ -191,7 +190,6 @@ fun ConfirmarCitaScreen(
                 titulo = "Fecha",
                 valor = fechaVisual
             )
-
             Spacer(modifier = Modifier.height(12.dp))
 
             ItemDetalleCita(
@@ -199,7 +197,6 @@ fun ConfirmarCitaScreen(
                 titulo = "Hora",
                 valor = horaFormateada
             )
-
             Spacer(modifier = Modifier.height(12.dp))
 
             ItemDetalleCita(
@@ -207,7 +204,6 @@ fun ConfirmarCitaScreen(
                 titulo = "Tipo de atención",
                 valor = "Consulta presencial"
             )
-
             Spacer(modifier = Modifier.height(12.dp))
 
             ItemDetalleCita(
@@ -215,7 +211,6 @@ fun ConfirmarCitaScreen(
                 titulo = "Dirección",
                 valor = "Av. Los Olivos 123\nLima"
             )
-
             Spacer(modifier = Modifier.height(20.dp))
 
             // Motivo de Consulta
@@ -238,7 +233,6 @@ fun ConfirmarCitaScreen(
                     unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
                 )
             )
-
             Spacer(modifier = Modifier.height(16.dp))
         }
     }

@@ -1,7 +1,9 @@
 package com.tuapp.saludpluscitas.ui.screens.auth
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,7 +34,7 @@ fun RegistroScreen(
     onBackToLogin: () -> Unit,
     onTerminosClick: () -> Unit
 ) {
-    // ESTADO PARA CAPTAR LOS DATOS  Y REDIBUJAR LA PANTALLA
+    // ESTADO PARA CAPTAR LOS DATOS Y REDIBUJAR LA PANTALLA
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -70,7 +73,7 @@ fun RegistroScreen(
         OutlinedTextField(
             value = telefono,
             onValueChange = { telefono = it },
-            label = { Text("Telefono") },
+            label = { Text("Teléfono") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -78,7 +81,7 @@ fun RegistroScreen(
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
-            label = { Text("Correo electrónico (Opcional)") },
+            label = { Text("Correo electrónico") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -99,7 +102,6 @@ fun RegistroScreen(
 
         Button(
             onClick = {
-
                 if (nombre.isBlank() || email.isBlank() || password.isBlank()) {
                     mensajeError = "Por favor completa todos los campos"
                 } else {
@@ -116,18 +118,33 @@ fun RegistroScreen(
         ) {
             Text(text = "Registrarme")
         }
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = "Al registrate aceptas nuestros Terminos y Condiciones",
-            fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        //IMPLEMENTACION PARA EL RETO 15
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Al registrarte aceptas nuestros ",
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Text(
+                text = "Términos y Condiciones",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { onTerminosClick() }
+            )
+        }
         Spacer(modifier = Modifier.height(16.dp))
         OutlinedButton(
             onClick = onBackToLogin,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "¿Ya tienes cuenta? Iniciar Sesion")
+            Text(text = "¿Ya tienes cuenta? Iniciar Sesión")
         }
     }
 }

@@ -15,4 +15,6 @@ sealed class Rutas(val ruta: String) {
     object ConfirmarCita : Rutas("confirmar_cita")
 
     object CitaExitosa : Rutas("cita_exitosa")
+    object DetalleCita : Rutas("detalle_cita")
+    object Notificaciones : Rutas("notificaciones")
 }

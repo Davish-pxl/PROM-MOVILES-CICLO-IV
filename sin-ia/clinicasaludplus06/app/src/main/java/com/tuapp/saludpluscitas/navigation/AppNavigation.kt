@@ -18,6 +18,10 @@ import com.tuapp.saludpluscitas.ui.screens.agendamiento.MedicosScreen
 import com.tuapp.saludpluscitas.ui.screens.agendamiento.FechaHoraScreen
 import com.tuapp.saludpluscitas.ui.screens.agendamiento.CitaExitosaScreen
 import com.tuapp.saludpluscitas.ui.screens.agendamiento.ConfirmarCitaScreen
+import com.tuapp.saludpluscitas.ui.screens.citas.DetalleCitaScreen
+import com.tuapp.saludpluscitas.ui.screens.resultados.ResultadosScreen
+import com.tuapp.saludpluscitas.ui.screens.notificaciones.NotificacionesScreen
+import com.tuapp.saludpluscitas.ui.screens.auth.TerminosScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -37,7 +41,6 @@ fun AppNavigation() {
                 }
             )
         }
-
         //Pantalla de Registro
         composable(Rutas.Registro.ruta) {
             RegistroScreen(
@@ -76,6 +79,7 @@ fun AppNavigation() {
                 onMisCitasClick = { navController.navigate(Rutas.Citas.ruta) },
                 onMisDatosClick = { navController.navigate(Rutas.Perfil.ruta) },
                 onResultadosClick = { navController.navigate(Rutas.Resultados.ruta) },
+                onNotificacionesClick = { navController.navigate(Rutas.Notificaciones.ruta) },
                 onEspecialidadClick = { idEspecialidad ->
                     navController.navigate("${Rutas.Medicos.ruta}/$idEspecialidad")
                 },
@@ -139,6 +143,30 @@ fun AppNavigation() {
         // Pantalla de Cita Exitosa
         composable(Rutas.CitaExitosa.ruta) {
             CitaExitosaScreen(navController)
+        }
+        composable(
+            route = "${Rutas.DetalleCita.ruta}/{citaId}",
+            arguments = listOf(
+                navArgument("citaId") { type = NavType.IntType }
+            )
+        ) { backStackEntry ->
+            val citaId = backStackEntry.arguments?.getInt("citaId") ?: 0
+            DetalleCitaScreen(navController, citaId)
+        }
+
+        // Reto Extra 13
+        composable(Rutas.Resultados.ruta) {
+            ResultadosScreen(navController)
+        }
+
+        // Reto Extra 14
+        composable(Rutas.Notificaciones.ruta) {
+            NotificacionesScreen(navController)
+        }
+
+        // Reto Extra 15
+        composable(Rutas.Terminos.ruta) {
+            TerminosScreen(navController)
         }
     }
 }

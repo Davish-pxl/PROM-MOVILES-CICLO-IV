@@ -5,8 +5,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Receipt
+import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,13 +27,13 @@ fun HomeScreen(
     onMisCitasClick: () -> Unit = {},
     onMisDatosClick: () -> Unit = {},
     onResultadosClick: () -> Unit = {},
+    onNotificacionesClick: () -> Unit = {},
     onEspecialidadClick: (Int) -> Unit,
     onVerTodasClick: () -> Unit
 ) {
     val usuarioNombre = Repositorio.usuarioActual?.nombre?.trim()?.substringBefore(" ") ?: "David"
     val especialidades = Repositorio.obtenerEspecialidades()
 
-    // SCAFFOLD
     Scaffold(
         topBar = {
             TopAppBar(
@@ -40,38 +44,40 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { }) {
-                        Icon(Icons.Default.Notifications, contentDescription = "Notificaciones")
+                    IconButton(onClick = onNotificacionesClick) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notificaciones"
+                        )
                     }
                 }
             )
         },
         bottomBar = {
-            // NAVIGATIONBAR
             NavigationBar {
                 NavigationBarItem(
-                    icon = { /* Icono Inicio */ },
+                    icon = { Icon(Icons.Default.Home, contentDescription = null) },
                     label = { Text("Inicio") },
                     selected = true,
                     onClick = { }
                 )
                 NavigationBarItem(
-                    icon = { /* Icono Citas */ },
+                    icon = { Icon(Icons.Default.EventNote, contentDescription = null) },
                     label = { Text("Citas") },
                     selected = false,
-                    onClick = { }
+                    onClick = onMisCitasClick
                 )
                 NavigationBarItem(
-                    icon = { /* Icono Resultados */ },
+                    icon = { Icon(Icons.Default.Receipt, contentDescription = null) },
                     label = { Text("Resultados") },
                     selected = false,
-                    onClick = { }
+                    onClick = onResultadosClick
                 )
                 NavigationBarItem(
-                    icon = { /* Icono Perfil */ },
+                    icon = { Icon(Icons.Default.Person, contentDescription = null) },
                     label = { Text("Perfil") },
                     selected = false,
-                    onClick = { }
+                    onClick = onMisDatosClick
                 )
             }
         }
@@ -99,7 +105,6 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // TARJETA
                 Card(
                     onClick = onAgendarCitaClick,
                     modifier = Modifier
@@ -124,7 +129,7 @@ fun HomeScreen(
                         )
                     }
                 }
-                // TARJETA
+
                 Card(
                     onClick = onMisCitasClick,
                     modifier = Modifier
@@ -157,7 +162,6 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // TARJETA
                 Card(
                     onClick = onMisDatosClick,
                     modifier = Modifier
@@ -181,7 +185,7 @@ fun HomeScreen(
                         )
                     }
                 }
-                // TARJETA
+
                 Card(
                     onClick = onResultadosClick,
                     modifier = Modifier
@@ -206,9 +210,9 @@ fun HomeScreen(
                     }
                 }
             }
+
             Spacer(modifier = Modifier.height(20.dp))
 
-            // ESPECIALIDADES DESTACADAS
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -223,9 +227,9 @@ fun HomeScreen(
                     Text(text = "Ver todas")
                 }
             }
+
             Spacer(modifier = Modifier.height(8.dp))
 
-            // LAZYROW
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 contentPadding = PaddingValues(horizontal = 2.dp)
@@ -240,6 +244,7 @@ fun HomeScreen(
         }
     }
 }
+
 @Composable
 fun EspecialidadCard(
     especialidad: Especialidad,

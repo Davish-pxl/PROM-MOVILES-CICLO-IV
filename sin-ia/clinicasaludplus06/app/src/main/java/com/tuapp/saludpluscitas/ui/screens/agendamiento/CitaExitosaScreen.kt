@@ -43,7 +43,6 @@ fun CitaExitosaScreen(navController: NavController) {
                     )
                 }
             }
-
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
@@ -52,7 +51,6 @@ fun CitaExitosaScreen(navController: NavController) {
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
-
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
@@ -61,7 +59,6 @@ fun CitaExitosaScreen(navController: NavController) {
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
-
             Spacer(modifier = Modifier.height(36.dp))
 
             Button(
@@ -77,7 +74,6 @@ fun CitaExitosaScreen(navController: NavController) {
             ) {
                 Text("Ver mis citas", fontSize = 16.sp, fontWeight = FontWeight.Bold)
             }
-
             Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedButton(

@@ -95,7 +95,6 @@ fun EspecialidadesScreen(navController: NavController) {
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
-
                             // FLECHA AL COSTADO DE ESPECIALIDAD
                             Icon(
                                 imageVector = Icons.Default.KeyboardArrowRight,
