@@ -66,7 +66,6 @@ fun CitaExitosaScreen(navController: NavController) {
 
             Button(
                 onClick = {
-                    // popUpTo para limpiar el flujo de reserva y redirigir a Mis Citas
                     navController.navigate(Rutas.Citas.ruta) {
                         popUpTo(Rutas.Home.ruta) { inclusive = false }
                     }
@@ -83,7 +82,6 @@ fun CitaExitosaScreen(navController: NavController) {
 
             OutlinedButton(
                 onClick = {
-                    // Limpia la pila hasta el Home
                     navController.navigate(Rutas.Home.ruta) {
                         popUpTo(Rutas.Home.ruta) { inclusive = true }
                     }

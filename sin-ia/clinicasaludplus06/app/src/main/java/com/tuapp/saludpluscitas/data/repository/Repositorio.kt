@@ -14,9 +14,7 @@ object Repositorio {
     private val listaCitas = mutableListOf<Cita>()
 
     // Control para la sesión
-    var usuarioActual: Usuario? = null
-        private set
-
+    var usuarioActual: Usuario? = Usuario("usuario@correo.com", "123456", "Usuario Paciente")
     // Registrar Usuario
     fun registrarUsuario(usuario: Usuario): Boolean {
         val existe = listaUsuarios.any { it.email == usuario.email }
@@ -84,5 +82,11 @@ object Repositorio {
 
     fun agendarCita(cita: Cita): Boolean {
         return listaCitas.add(cita)
+    }
+    fun obtenerCitasPorUsuario(usuarioEmail: String): List<Cita> {
+        return listaCitas.filter { it.usuarioEmail == usuarioEmail }
+    }
+    fun cancelarCita(citaId: Int) {
+        listaCitas.removeAll { it.id == citaId }
     }
 }
