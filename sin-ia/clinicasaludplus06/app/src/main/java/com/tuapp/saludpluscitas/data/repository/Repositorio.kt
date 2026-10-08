@@ -18,6 +18,7 @@ object Repositorio {
             return false
         }
         listaUsuarios.add(usuario)
+        usuarioActual = usuario
         return true
     }
 

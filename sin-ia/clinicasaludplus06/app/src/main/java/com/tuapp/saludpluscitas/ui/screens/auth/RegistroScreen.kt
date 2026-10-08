@@ -28,13 +28,15 @@ import com.tuapp.saludpluscitas.data.repository.Repositorio
 @Composable
 fun RegistroScreen(
     onRegistroExitoso: () -> Unit,
-    onBackToLogin: () -> Unit
+    onBackToLogin: () -> Unit,
+    onTerminosClick: () -> Unit
 ) {
     // ESTADO PARA CAPTAR LOS DATOS  Y REDIBUJAR LA PANTALLA
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var mensajeError by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -61,6 +63,14 @@ fun RegistroScreen(
             value = nombre,
             onValueChange = { nombre = it },
             label = { Text("Nombre completo") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = telefono,
+            onValueChange = { telefono = it },
+            label = { Text("Telefono") },
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.height(8.dp))

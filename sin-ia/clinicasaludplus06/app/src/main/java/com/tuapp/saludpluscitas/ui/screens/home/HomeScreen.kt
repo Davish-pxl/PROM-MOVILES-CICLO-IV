@@ -26,7 +26,7 @@ fun HomeScreen(
     onEspecialidadClick: (Int) -> Unit,
     onVerTodasClick: () -> Unit
 ) {
-    val usuarioNombre = Repositorio.usuarioActual?.nombre ?: "David"
+    val usuarioNombre = Repositorio.usuarioActual?.nombre?.trim()?.substringBefore(" ") ?: "David"
     val especialidades = Repositorio.obtenerEspecialidades()
 
     // SCAFFOLD
