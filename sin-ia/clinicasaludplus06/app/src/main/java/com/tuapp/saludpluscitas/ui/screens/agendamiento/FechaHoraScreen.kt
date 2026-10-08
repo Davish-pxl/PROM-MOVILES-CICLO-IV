@@ -40,14 +40,13 @@ fun FechaHoraScreen(
 ) {
     val medico = Repositorio.obtenerMedicos().find { it.id == medicoId }
     val especialidad = Repositorio.obtenerEspecialidades().find { it.id == medico?.especialidadId }
-
     val dias = remember {
         listOf(
-            DiaCalendario("Lun", "15", "15/09/2026"),
-            DiaCalendario("Mar", "16", "16/09/2026"),
-            DiaCalendario("Mié", "17", "17/09/2026"),
-            DiaCalendario("Jue", "18", "18/09/2026"),
-            DiaCalendario("Vie", "19", "19/09/2026")
+            DiaCalendario("Lun", "15", "15-09-2026"),
+            DiaCalendario("Mar", "16", "16-09-2026"),
+            DiaCalendario("Mié", "17", "17-09-2026"),
+            DiaCalendario("Jue", "18", "18-09-2026"),
+            DiaCalendario("Vie", "19", "19-09-2026")
         )
     }
 
@@ -171,7 +170,6 @@ fun FechaHoraScreen(
                     }
                 }
             }
-
             Spacer(modifier = Modifier.height(20.dp))
 
             Row(
@@ -238,7 +236,7 @@ fun FechaHoraScreen(
             }
             Spacer(modifier = Modifier.height(28.dp))
 
-            // LAZYVERTICALGRID
+            // LAZYVERTICALGRID DE HORARIOS DISPONIBLES
             if (horariosDisponibles.isEmpty()) {
                 Box(
                     modifier = Modifier.fillMaxSize(),

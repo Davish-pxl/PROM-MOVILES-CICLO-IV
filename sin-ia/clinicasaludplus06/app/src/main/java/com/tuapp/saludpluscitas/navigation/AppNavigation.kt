@@ -16,7 +16,8 @@ import com.tuapp.saludpluscitas.ui.screens.perfil.PerfilScreen
 import com.tuapp.saludpluscitas.ui.screens.agendamiento.EspecialidadesScreen
 import com.tuapp.saludpluscitas.ui.screens.agendamiento.MedicosScreen
 import com.tuapp.saludpluscitas.ui.screens.agendamiento.FechaHoraScreen
-
+import com.tuapp.saludpluscitas.ui.screens.agendamiento.CitaExitosaScreen
+import com.tuapp.saludpluscitas.ui.screens.agendamiento.ConfirmarCitaScreen
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -29,11 +30,9 @@ fun AppNavigation() {
         composable(Rutas.Splash.ruta) {
             SplashScreen(
                 onNavigateToLogin = {
-                    // "Ya tengo cuenta" -> Va a Iniciar Sesión (Login)
                     navController.navigate(Rutas.Registro.ruta)
                 },
                 onNavigateToRegister = {
-                    // "Comenzar" / "Registrarme" -> Va a Registro
                     navController.navigate(Rutas.Login.ruta)
                 }
             )
@@ -57,12 +56,10 @@ fun AppNavigation() {
                 }
             )
         }
-
         //Pantalla de Iniciar Sesión
         composable(Rutas.Login.ruta) {
             LoginScreen(
                 onLoginExitoso = {
-                    // Tras un login correcto, manda a Home limpiando autenticación
                     navController.navigate(Rutas.Home.ruta) {
                         popUpTo(Rutas.Splash.ruta) { inclusive = true }
                     }
@@ -72,7 +69,6 @@ fun AppNavigation() {
                 }
             )
         }
-
         //Pantalla Principal
         composable(Rutas.Home.ruta) {
             HomeScreen(
@@ -86,7 +82,6 @@ fun AppNavigation() {
                 onVerTodasClick = { navController.navigate(Rutas.Especialidades.ruta) }
             )
         }
-
         //Resto de pantallas
         composable(Rutas.Citas.ruta) {
             MisCitasScreen(navController)
@@ -126,6 +121,24 @@ fun AppNavigation() {
         ) { backStackEntry ->
             val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
             FechaHoraScreen(navController, medicoId)
+        }
+        composable(
+            route = "${Rutas.ConfirmarCita.ruta}/{medicoId}/{fecha}/{hora}",
+            arguments = listOf(
+                navArgument("medicoId") { type = NavType.IntType },
+                navArgument("fecha") { type = NavType.StringType },
+                navArgument("hora") { type = NavType.StringType }
+            )
+        ) { backStackEntry ->
+            val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
+            val fecha = backStackEntry.arguments?.getString("fecha") ?: ""
+            val hora = backStackEntry.arguments?.getString("hora") ?: ""
+
+            ConfirmarCitaScreen(navController, medicoId, fecha, hora)
+        }
+        // Pantalla de Cita Exitosa
+        composable(Rutas.CitaExitosa.ruta) {
+            CitaExitosaScreen(navController)
         }
     }
 }

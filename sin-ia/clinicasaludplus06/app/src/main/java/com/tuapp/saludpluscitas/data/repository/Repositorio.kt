@@ -60,13 +60,13 @@ object Repositorio {
 
     // Médicos y Especialidades
     private val listaMedicos = mutableListOf(
-        Medico(1, "Dr. Carlos Pérez", 1, "Lun - Vie: 8:00 AM - 1:00 PM"),
-        Medico(2, "Dra. María Gómez", 1, "Lun - Vie: 2:00 PM - 6:00 PM"),
-        Medico(3, "Dr. Luis Ramírez", 3, "Mar - Jue: 9:00 AM - 1:00 PM"),
-        Medico(4, "Dra. Mariana Soto", 3, "Mar - Jue: 9:00 AM - 1:00 PM"),
-        Medico(5, "Dra. Claudia Rojas", 3, "Mar - Jue: 9:00 AM - 1:00 PM"),
-        Medico(6, "Dra. Ana Torres", 3, "Lun - Sáb: 8:00 AM - 12:00 PM"),
-        Medico(7, "Dr. Luis Mendoza", 4, "Mié - Vie: 10:00 AM - 4:00 PM")
+        Medico(1, "Dr. Carlos Pérez", 1, "Lun - Vie: 8:00 AM - 1:00 PM", "CMP: 45892"),
+        Medico(2, "Dra. María Gómez", 1, "Lun - Vie: 2:00 PM - 6:00 PM", "CMP: 51204"),
+        Medico(3, "Dr. Luis Ramirez", 3, "Mar - Jue: 9:00 AM - 1:00 PM", "CMP: 38910"),
+        Medico(4, "Dra. Mariana Soto", 3, "Mar - Jue: 9:00 AM - 1:00 PM", "CMP: 62145"),
+        Medico(5, "Dra. Claudia Rojas", 3, "Mar - Jue: 9:00 AM - 1:00 PM", "CMP: 47831"),
+        Medico(6, "Dra. Ana Torres", 3, "Lun - Sáb: 8:00 AM - 12:00 PM", "CMP: 12345"),
+        Medico(7, "Dr. Luis Mendoza", 4, "Mié - Vie: 10:00 AM - 4:00 PM", "CMP: 59012")
     )
 
     fun obtenerMedicos(): List<Medico> {
