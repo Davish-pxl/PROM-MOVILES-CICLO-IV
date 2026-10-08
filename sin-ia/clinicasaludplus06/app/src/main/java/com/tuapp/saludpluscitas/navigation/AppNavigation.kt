@@ -15,6 +15,7 @@ import com.tuapp.saludpluscitas.ui.screens.resultados.ResultadosScreen
 import com.tuapp.saludpluscitas.ui.screens.perfil.PerfilScreen
 import com.tuapp.saludpluscitas.ui.screens.agendamiento.EspecialidadesScreen
 import com.tuapp.saludpluscitas.ui.screens.agendamiento.MedicosScreen
+import com.tuapp.saludpluscitas.ui.screens.agendamiento.FechaHoraScreen
 
 @Composable
 fun AppNavigation() {
@@ -102,7 +103,6 @@ fun AppNavigation() {
         composable(Rutas.Especialidades.ruta) {
             EspecialidadesScreen(navController)
         }
-
         composable(
             route = "${Rutas.Medicos.ruta}/{especialidadId}",
             arguments = listOf(
@@ -114,6 +114,18 @@ fun AppNavigation() {
         ) { backStackEntry ->
             val especialidadId = backStackEntry.arguments?.getInt("especialidadId") ?: 0
             MedicosScreen(navController, especialidadId)
+        }
+        composable(
+            route = "${Rutas.FechaHora.ruta}/{medicoId}",
+            arguments = listOf(
+                navArgument("medicoId") {
+                    type = NavType.IntType
+                    defaultValue = 0
+                }
+            )
+        ) { backStackEntry ->
+            val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
+            FechaHoraScreen(navController, medicoId)
         }
     }
 }

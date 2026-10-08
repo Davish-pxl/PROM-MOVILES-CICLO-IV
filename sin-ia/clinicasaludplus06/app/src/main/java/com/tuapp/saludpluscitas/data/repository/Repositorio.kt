@@ -1,13 +1,19 @@
 package com.tuapp.saludpluscitas.data.repository
+
+import com.tuapp.saludpluscitas.data.model.Cita
 import com.tuapp.saludpluscitas.data.model.Especialidad
 import com.tuapp.saludpluscitas.data.model.Medico
 import com.tuapp.saludpluscitas.data.model.Usuario
+
 object Repositorio {
 
-    // Colección donde se guardaran para los usuarios registrados
+    // Colección donde se guardarán los usuarios registrados
     private val listaUsuarios = mutableListOf<Usuario>()
 
-    // Control para la sesion
+    // Colección en memoria para las citas agendadas
+    private val listaCitas = mutableListOf<Cita>()
+
+    // Control para la sesión
     var usuarioActual: Usuario? = null
         private set
 
@@ -22,7 +28,7 @@ object Repositorio {
         return true
     }
 
-    // Iniciar Sesion
+    // Iniciar Sesión
     fun iniciarSesion(email: String, password: String): Boolean {
         val usuarioEncontrado = listaUsuarios.find { it.email == email && it.password == password }
         if (usuarioEncontrado != null) {
@@ -32,31 +38,31 @@ object Repositorio {
         return false
     }
 
-    // Cerrar Sesion
+    // Cerrar Sesión
     fun cerrarSesion() {
         usuarioActual = null
     }
+
     // Especialidades
     private val listaEspecialidades = mutableListOf(
         Especialidad(1, "Medicina General", "Atención integral"),
-        Especialidad(2, "Pediatria", "Niños y adolescentes"),
-        Especialidad(3, "Ginecologia", "Salud de la mujer"),
-        Especialidad(4, "Cardiologia", "Corazon y vasos sanguineos"),
-        Especialidad(5, "Dermatologia", "Piel, cabello y uñas"),
-        Especialidad(6, "Traumotologia", "Huesos y articulaciones"),
-        Especialidad(7, "Oftalmologia", "Salud Visual")
-
+        Especialidad(2, "Pediatría", "Niños y adolescentes"),
+        Especialidad(3, "Ginecología", "Salud de la mujer"),
+        Especialidad(4, "Cardiología", "Corazón y vasos sanguíneos"),
+        Especialidad(5, "Dermatología", "Piel, cabello y uñas"),
+        Especialidad(6, "Traumatología", "Huesos y articulaciones"),
+        Especialidad(7, "Oftalmología", "Salud Visual")
     )
 
     fun obtenerEspecialidades(): List<Especialidad> {
         return listaEspecialidades
     }
 
-    // Medicos y Especialidades
+    // Médicos y Especialidades
     private val listaMedicos = mutableListOf(
         Medico(1, "Dr. Carlos Pérez", 1, "Lun - Vie: 8:00 AM - 1:00 PM"),
         Medico(2, "Dra. María Gómez", 1, "Lun - Vie: 2:00 PM - 6:00 PM"),
-        Medico(3, "Dr. Luis Ramirez", 3, "Mar - Jue: 9:00 AM - 1:00 PM"),
+        Medico(3, "Dr. Luis Ramírez", 3, "Mar - Jue: 9:00 AM - 1:00 PM"),
         Medico(4, "Dra. Mariana Soto", 3, "Mar - Jue: 9:00 AM - 1:00 PM"),
         Medico(5, "Dra. Claudia Rojas", 3, "Mar - Jue: 9:00 AM - 1:00 PM"),
         Medico(6, "Dra. Ana Torres", 3, "Lun - Sáb: 8:00 AM - 12:00 PM"),
@@ -69,5 +75,14 @@ object Repositorio {
 
     fun obtenerMedicosPorEspecialidad(especialidadId: Int): List<Medico> {
         return listaMedicos.filter { it.especialidadId == especialidadId }
+    }
+
+    // Citas en memoria
+    fun obtenerCitas(): List<Cita> {
+        return listaCitas
+    }
+
+    fun agendarCita(cita: Cita): Boolean {
+        return listaCitas.add(cita)
     }
 }

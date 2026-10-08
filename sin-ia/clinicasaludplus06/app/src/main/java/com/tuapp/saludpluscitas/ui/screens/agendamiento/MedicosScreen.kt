@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.tuapp.saludpluscitas.data.repository.Repositorio
+import androidx.compose.foundation.clickable
+import com.tuapp.saludpluscitas.navigation.Rutas
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedicosScreen(navController: NavController, especialidadId: Int) {
@@ -71,7 +73,11 @@ fun MedicosScreen(navController: NavController, especialidadId: Int) {
                 ) {
                     items(medicos) { medico ->
                         Card(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable{
+                                    navController.navigate("${Rutas.FechaHora.ruta}/${medico.id}")
+                                },
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                         ) {
@@ -84,7 +90,6 @@ fun MedicosScreen(navController: NavController, especialidadId: Int) {
                                     modifier = Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    // Avatar circular del médico
                                     Surface(
                                         modifier = Modifier.size(60.dp),
                                         shape = CircleShape,
