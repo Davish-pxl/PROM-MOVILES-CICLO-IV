@@ -2,6 +2,7 @@ package com.tuapp.saludpluscitas.data.repository
 
 import com.tuapp.saludpluscitas.data.model.Cita
 import com.tuapp.saludpluscitas.data.model.Especialidad
+import com.tuapp.saludpluscitas.data.model.Local
 import com.tuapp.saludpluscitas.data.model.Medico
 import com.tuapp.saludpluscitas.data.model.Usuario
 
@@ -15,6 +16,20 @@ object Repositorio {
 
     // Control para la sesión
     var usuarioActual: Usuario? = Usuario("usuario@correo.com", "123456", "Usuario Paciente")
+
+    // --- LOCALES ---
+    private val listaLocales = mutableListOf(
+        Local("1", "Sede La Molina", "Av. Javier Prado Este 5200", "La Molina"),
+        Local("2", "Sede Independencia", "Av. Carlos Izaguirre 780", "Independencia")
+    )
+
+    // Variable para almacenar el local que el usuario seleccionó
+    var localSeleccionado: Local? = null
+
+    fun obtenerLocales(): List<Local> {
+        return listaLocales
+    }
+
     // Registrar Usuario
     fun registrarUsuario(usuario: Usuario): Boolean {
         val existe = listaUsuarios.any { it.email == usuario.email }
@@ -83,9 +98,11 @@ object Repositorio {
     fun agendarCita(cita: Cita): Boolean {
         return listaCitas.add(cita)
     }
+
     fun obtenerCitasPorUsuario(usuarioEmail: String): List<Cita> {
         return listaCitas.filter { it.usuarioEmail == usuarioEmail }
     }
+
     fun cancelarCita(citaId: Int) {
         listaCitas.removeAll { it.id == citaId }
     }

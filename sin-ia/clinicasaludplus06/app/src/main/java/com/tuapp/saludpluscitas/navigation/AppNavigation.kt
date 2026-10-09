@@ -19,9 +19,11 @@ import com.tuapp.saludpluscitas.ui.screens.agendamiento.FechaHoraScreen
 import com.tuapp.saludpluscitas.ui.screens.agendamiento.CitaExitosaScreen
 import com.tuapp.saludpluscitas.ui.screens.agendamiento.ConfirmarCitaScreen
 import com.tuapp.saludpluscitas.ui.screens.citas.DetalleCitaScreen
-import com.tuapp.saludpluscitas.ui.screens.resultados.ResultadosScreen
+import com.tuapp.saludpluscitas.ui.screens.agendamiento.DoctoresPorEspecialidadScreen
+import com.tuapp.saludpluscitas.ui.screens.agendamiento.LocalesScreen
 import com.tuapp.saludpluscitas.ui.screens.notificaciones.NotificacionesScreen
 import com.tuapp.saludpluscitas.ui.screens.auth.TerminosScreen
+
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
@@ -30,7 +32,7 @@ fun AppNavigation() {
         navController = navController,
         startDestination = Rutas.Splash.ruta
     ) {
-        //Pantalla Splash
+        // Pantalla Splash
         composable(Rutas.Splash.ruta) {
             SplashScreen(
                 onNavigateToLogin = {
@@ -41,7 +43,8 @@ fun AppNavigation() {
                 }
             )
         }
-        //Pantalla de Registro
+
+        // Pantalla de Registro
         composable(Rutas.Registro.ruta) {
             RegistroScreen(
                 onRegistroExitoso = {
@@ -59,7 +62,8 @@ fun AppNavigation() {
                 }
             )
         }
-        //Pantalla de Iniciar Sesión
+
+        // Pantalla de Iniciar Sesión
         composable(Rutas.Login.ruta) {
             LoginScreen(
                 onLoginExitoso = {
@@ -72,13 +76,16 @@ fun AppNavigation() {
                 }
             )
         }
-        //Pantalla Principal
+
+        // Pantalla Principal
         composable(Rutas.Home.ruta) {
             HomeScreen(
                 onAgendarCitaClick = { navController.navigate(Rutas.Especialidades.ruta) },
                 onMisCitasClick = { navController.navigate(Rutas.Citas.ruta) },
                 onMisDatosClick = { navController.navigate(Rutas.Perfil.ruta) },
                 onResultadosClick = { navController.navigate(Rutas.Resultados.ruta) },
+                onDoctoresClick = { navController.navigate(Rutas.DoctoresPorEspecialidad.ruta) },
+                onLocalesClick = { navController.navigate(Rutas.Locales.ruta) },
                 onNotificacionesClick = { navController.navigate(Rutas.Notificaciones.ruta) },
                 onEspecialidadClick = { idEspecialidad ->
                     navController.navigate("${Rutas.Medicos.ruta}/$idEspecialidad")
@@ -86,7 +93,8 @@ fun AppNavigation() {
                 onVerTodasClick = { navController.navigate(Rutas.Especialidades.ruta) }
             )
         }
-        //Resto de pantallas
+
+        // Resto de pantallas
         composable(Rutas.Citas.ruta) {
             MisCitasScreen(navController)
         }
@@ -102,6 +110,7 @@ fun AppNavigation() {
         composable(Rutas.Especialidades.ruta) {
             EspecialidadesScreen(navController)
         }
+
         composable(
             route = "${Rutas.Medicos.ruta}/{especialidadId}",
             arguments = listOf(
@@ -114,6 +123,7 @@ fun AppNavigation() {
             val especialidadId = backStackEntry.arguments?.getInt("especialidadId") ?: 0
             MedicosScreen(navController, especialidadId)
         }
+
         composable(
             route = "${Rutas.FechaHora.ruta}/{medicoId}",
             arguments = listOf(
@@ -126,6 +136,7 @@ fun AppNavigation() {
             val medicoId = backStackEntry.arguments?.getInt("medicoId") ?: 0
             FechaHoraScreen(navController, medicoId)
         }
+
         composable(
             route = "${Rutas.ConfirmarCita.ruta}/{medicoId}/{fecha}/{hora}",
             arguments = listOf(
@@ -140,10 +151,12 @@ fun AppNavigation() {
 
             ConfirmarCitaScreen(navController, medicoId, fecha, hora)
         }
+
         // Pantalla de Cita Exitosa
         composable(Rutas.CitaExitosa.ruta) {
             CitaExitosaScreen(navController)
         }
+
         composable(
             route = "${Rutas.DetalleCita.ruta}/{citaId}",
             arguments = listOf(
@@ -154,11 +167,6 @@ fun AppNavigation() {
             DetalleCitaScreen(navController, citaId)
         }
 
-        // Reto Extra 13
-        composable(Rutas.Resultados.ruta) {
-            ResultadosScreen(navController)
-        }
-
         // Reto Extra 14
         composable(Rutas.Notificaciones.ruta) {
             NotificacionesScreen(navController)
@@ -167,6 +175,14 @@ fun AppNavigation() {
         // Reto Extra 15
         composable(Rutas.Terminos.ruta) {
             TerminosScreen(navController)
+        }
+
+        composable(Rutas.DoctoresPorEspecialidad.ruta) {
+            DoctoresPorEspecialidadScreen(navController = navController)
+        }
+
+        composable(Rutas.Locales.ruta) {
+            LocalesScreen(navController)
         }
     }
 }

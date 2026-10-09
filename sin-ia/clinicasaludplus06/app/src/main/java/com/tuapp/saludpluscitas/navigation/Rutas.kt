@@ -12,9 +12,11 @@ sealed class Rutas(val ruta: String) {
     object Medicos : Rutas("medicos")
     object Terminos : Rutas("terminos")
     object FechaHora : Rutas("fecha_hora")
+    object DoctoresPorEspecialidad : Rutas("doctores_por_especialidad")
     object ConfirmarCita : Rutas("confirmar_cita")
 
     object CitaExitosa : Rutas("cita_exitosa")
     object DetalleCita : Rutas("detalle_cita")
     object Notificaciones : Rutas("notificaciones")
+    object Locales : Rutas("locales")
 }
