@@ -37,13 +37,13 @@ fun IconBadge(
     icon: ImageVector,
     fondo: Color,
     tint: Color,
-    tamaño: Dp = 44.dp,
+    modifier: Modifier = Modifier,
+    tamano: Dp = 44.dp,
     shape: Shape = CircleShape,
-    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
-            .size(tamaño)
+            .size(tamano)
             .clip(shape)
             .background(fondo),
         contentAlignment = Alignment.Center
@@ -52,7 +52,7 @@ fun IconBadge(
             imageVector = icon,
             contentDescription = null,
             tint = tint,
-            modifier = Modifier.size(tamaño * 0.5f)
+            modifier = Modifier.size(tamano * 0.5f)
         )
     }
 }
@@ -66,7 +66,7 @@ fun PrimaryButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     Button(
         onClick = onClick,
@@ -113,7 +113,7 @@ fun CampoTexto(
     placeholder: String = "",
     leadingIcon: ImageVector? = null,
     isPassword: Boolean = false,
-    enabled: Boolean = true
+    enabled: Boolean = true,
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -182,7 +182,7 @@ fun TarjetaMedico(
     modifier: Modifier = Modifier,
     rating: String = "4.9 (120)",
     disponibilidad: String = "Disponible hoy",
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
 ) {
     val esDisponibleHoy = disponibilidad.contains("hoy", ignoreCase = true)
     val colorPillFondo = if (esDisponibleHoy) VerdeDisponibleFondo else AmbarAvisoFondo

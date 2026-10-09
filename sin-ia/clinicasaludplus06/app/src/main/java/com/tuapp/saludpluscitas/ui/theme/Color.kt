@@ -2,14 +2,24 @@ package com.tuapp.saludpluscitas.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val AzulPrimario = Color(0xFF1E88E5)
-val AzulOscuro = Color(0xFF0D47A1)
-val AzulClaro = Color(0xFF90CAF9)
+// Primario y Fondos
+val AzulPrimario = Color(0xFF1E63F0)
+val FondoBlanco = Color(0xFFFFFFFF)
+val SuperficieSuave = Color(0xFFF5F7FB)
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Textos y Bordes
+val TextoPrincipal = Color(0xFF1A1A2E)
+val TextoSecundario = Color(0xFF6B7280)
+val BordeGris = Color(0xFFE5E7EB)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// Estados de Disponibilidad
+val VerdeDisponible = Color(0xFF22C55E)
+val VerdeDisponibleFondo = Color(0xFFE8F8EE)
+val AmbarAviso = Color(0xFFF59E0B)
+val AmbarAvisoFondo = Color(0xFFFEF3C7)
+
+// Tarjetas de Acceso Rápido
+val TarjetaAzul = Color(0xFFDCEBFF)
+val TarjetaVerde = Color(0xFFD9F5E5)
+val TarjetaLila = Color(0xFFEADFFB)
+val TarjetaNaranja = Color(0xFFFFE9D6)

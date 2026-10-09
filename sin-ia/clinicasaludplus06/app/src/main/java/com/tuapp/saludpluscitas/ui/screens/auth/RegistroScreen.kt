@@ -1,111 +1,144 @@
 package com.tuapp.saludpluscitas.ui.screens.auth
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Email
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tuapp.saludpluscitas.data.model.Usuario
 import com.tuapp.saludpluscitas.data.repository.Repositorio
+import com.tuapp.saludpluscitas.ui.components.CampoTexto
+import com.tuapp.saludpluscitas.ui.components.PrimaryButton
+import com.tuapp.saludpluscitas.ui.theme.AzulPrimario
+import com.tuapp.saludpluscitas.ui.theme.TextoPrincipal
+import com.tuapp.saludpluscitas.ui.theme.TextoSecundario
 
 @Composable
 fun RegistroScreen(
     onRegistroExitoso: () -> Unit,
     onBackToLogin: () -> Unit,
-    onTerminosClick: () -> Unit
+    onTerminosClick: () -> Unit,
 ) {
-    // ESTADO PARA CAPTAR LOS DATOS Y REDIBUJAR LA PANTALLA
     var nombre by remember { mutableStateOf("") }
+    var telefono by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var mensajeError by remember { mutableStateOf("") }
-    var telefono by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(24.dp)
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Encabezado
         Text(
-            text = "Crear Cuenta",
-            style = MaterialTheme.typography.headlineLarge
+            text = "Crear cuenta",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = TextoPrincipal
         )
-        Spacer(modifier = Modifier.height(4.dp))
+
+        Spacer(modifier = Modifier.height(6.dp))
 
         Text(
             text = "Regístrate para agendar tus citas",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            fontSize = 15.sp,
+            color = TextoSecundario
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(32.dp))
 
-        OutlinedTextField(
+        // Campos de Formulario
+        CampoTexto(
             value = nombre,
-            onValueChange = { nombre = it },
-            label = { Text("Nombre completo") },
-            modifier = Modifier.fillMaxWidth()
+            onValueChange = {
+                nombre = it
+                mensajeError = ""
+            },
+            label = "Nombre completo",
+            placeholder = "Juan Pérez",
+            leadingIcon = Icons.Outlined.Person
         )
-        Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CampoTexto(
             value = telefono,
-            onValueChange = { telefono = it },
-            label = { Text("Teléfono") },
-            modifier = Modifier.fillMaxWidth()
+            onValueChange = {
+                telefono = it
+                mensajeError = ""
+            },
+            label = "Teléfono",
+            placeholder = "987 654 321",
+            leadingIcon = Icons.Outlined.Phone
         )
-        Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CampoTexto(
             value = email,
-            onValueChange = { email = it },
-            label = { Text("Correo electrónico") },
-            modifier = Modifier.fillMaxWidth()
+            onValueChange = {
+                email = it
+                mensajeError = ""
+            },
+            label = "Correo (opcional)",
+            placeholder = "juan@correo.com",
+            leadingIcon = Icons.Outlined.Email
         )
-        Spacer(modifier = Modifier.height(8.dp))
 
-        OutlinedTextField(
+        Spacer(modifier = Modifier.height(16.dp))
+
+        CampoTexto(
             value = password,
-            onValueChange = { password = it },
-            label = { Text("Contraseña") },
-            visualTransformation = PasswordVisualTransformation(),
-            modifier = Modifier.fillMaxWidth()
+            onValueChange = {
+                password = it
+                mensajeError = ""
+            },
+            label = "Contraseña",
+            placeholder = "••••••••",
+            leadingIcon = Icons.Outlined.Lock,
+            isPassword = true
         )
 
         if (mensajeError.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = mensajeError, color = MaterialTheme.colorScheme.error)
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = mensajeError,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.Medium
+            )
         }
-        Spacer(modifier = Modifier.height(24.dp))
 
-        Button(
+        Spacer(modifier = Modifier.height(28.dp))
+
+        // Botón de Registro
+        PrimaryButton(
+            texto = "Registrarme",
             onClick = {
-                if (nombre.isBlank() || email.isBlank() || password.isBlank()) {
-                    mensajeError = "Por favor completa todos los campos"
+                if (nombre.isBlank() || password.isBlank()) {
+                    mensajeError = "Por favor completa tu nombre y contraseña"
                 } else {
-                    val nuevoUsuario = Usuario(email = email, password = password, nombre = nombre)
+                    val correoFinal = email.ifBlank { "$nombre@correo.com".lowercase().replace(" ", "") }
+                    val nuevoUsuario = Usuario(email = correoFinal, password = password, nombre = nombre)
                     val registrado = Repositorio.registrarUsuario(nuevoUsuario)
                     if (registrado) {
                         onRegistroExitoso()
@@ -113,14 +146,12 @@ fun RegistroScreen(
                         mensajeError = "El correo ya se encuentra registrado"
                     }
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "Registrarme")
-        }
-        Spacer(modifier = Modifier.height(8.dp))
+            }
+        )
 
-        //IMPLEMENTACION PARA EL RETO 15
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // Términos y Condiciones
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
@@ -129,22 +160,50 @@ fun RegistroScreen(
             Text(
                 text = "Al registrarte aceptas nuestros ",
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = TextoSecundario
             )
             Text(
                 text = "Términos y Condiciones",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+                color = AzulPrimario,
                 modifier = Modifier.clickable { onTerminosClick() }
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedButton(
-            onClick = onBackToLogin,
-            modifier = Modifier.fillMaxWidth()
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Enlace Iniciar Sesión
+        Row(
+            modifier = Modifier
+                .clickable { onBackToLogin() }
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = "¿Ya tienes cuenta? Iniciar Sesión")
+            Text(
+                text = "¿Ya tienes cuenta? ",
+                fontSize = 14.sp,
+                color = TextoSecundario
+            )
+            Text(
+                text = "Iniciar sesión",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                color = AzulPrimario
+            )
         }
+
+        Spacer(modifier = Modifier.height(32.dp))
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RegistroScreenPreview() {
+    RegistroScreen(
+        onRegistroExitoso = {},
+        onBackToLogin = {},
+        onTerminosClick = {}
+    )
 }
