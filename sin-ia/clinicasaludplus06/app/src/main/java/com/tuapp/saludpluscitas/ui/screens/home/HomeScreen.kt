@@ -1,6 +1,5 @@
 package com.tuapp.saludpluscitas.ui.screens.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,13 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.tuapp.saludpluscitas.R
 import com.tuapp.saludpluscitas.data.model.Especialidad
 import com.tuapp.saludpluscitas.data.repository.Repositorio
 import com.tuapp.saludpluscitas.ui.components.IconBadge
@@ -40,12 +36,17 @@ fun HomeScreen(
     onMisCitasClick: () -> Unit = {},
     onMisDatosClick: () -> Unit = {},
     onResultadosClick: () -> Unit = {},
+    onDoctoresClick: () -> Unit = {},
+    onLocalesClick: () -> Unit = {},
     onNotificacionesClick: () -> Unit = {},
     onEspecialidadClick: (Int) -> Unit = {},
     onVerTodasClick: () -> Unit = {},
 ) {
     val usuarioNombre = Repositorio.usuarioActual?.nombre?.trim()?.substringBefore(" ") ?: "David"
     val especialidades = Repositorio.obtenerEspecialidades()
+
+    // Mostramos el nombre del local seleccionado si existe, si no "Locales"
+    val textoLocal = Repositorio.localSeleccionado?.nombre ?: "Locales"
 
     Scaffold(
         topBar = {
@@ -60,7 +61,6 @@ fun HomeScreen(
                                 tint = TextoPrincipal,
                             )
                         }
-                        // Punto rojo de notificación
                         Box(
                             modifier = Modifier
                                 .size(10.dp)
@@ -112,84 +112,25 @@ fun HomeScreen(
                 .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Header: Saludo e Imagen PNG del Usuario
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "¡Hola, $usuarioNombre!",
-                        fontSize = 26.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = TextoPrincipal
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "¿Qué deseas hacer hoy?",
-                        fontSize = 15.sp,
-                        color = TextoSecundario
-                    )
-                }
-
-                // Avatar PNG de Perfil
-                Image(
-                    painter = painterResource(id = R.drawable.doctoras),
-                    contentDescription = "Foto de perfil",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(54.dp)
-                        .clip(CircleShape)
-                        .clickable { onMisDatosClick() }
+            // Header: Saludo del usuario
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Text(
+                    text = "¡Hola, $usuarioNombre!",
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextoPrincipal
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "¿Qué deseas hacer hoy?",
+                    fontSize = 15.sp,
+                    color = TextoSecundario
                 )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Tarjeta Promocional con Ilustración PNG
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = AzulPrimario.copy(alpha = 0.1f)),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Atención médica digital",
-                            fontSize = 17.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = AzulPrimario
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = "Reserva tus citas con los mejores especialistas de la clínica.",
-                            fontSize = 13.sp,
-                            color = TextoSecundario
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Image(
-                        painter = painterResource(id = R.drawable.logo_doctor),
-                        contentDescription = "Promoción SaludPlus",
-                        contentScale = ContentScale.Fit,
-                        modifier = Modifier.size(80.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // Cuadrícula 2x2 de Accesos Rápida
+            // Cuadrícula 2x2
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -236,6 +177,30 @@ fun HomeScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botón Doctores por Especialidad
+            TarjetaAccesoRapido(
+                titulo = "Doctores",
+                icon = Icons.Filled.Medication,
+                colorFondo = Color(0xFFE0F2FE),
+                colorIcono = Color(0xFF0284C7),
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onDoctoresClick
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botón Selección de Locales (Muestra la sede actual)
+            TarjetaAccesoRapido(
+                titulo = textoLocal,
+                icon = Icons.Filled.Place,
+                colorFondo = Color(0xFFFEF3C7),
+                colorIcono = Color(0xFFD97706),
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onLocalesClick
+            )
+
             Spacer(modifier = Modifier.height(28.dp))
 
             // Sección Especialidades Destacadas
@@ -278,9 +243,6 @@ fun HomeScreen(
     }
 }
 
-/**
- * Tarjeta de acceso rápido de color para la cuadrícula 2x2.
- */
 @Composable
 private fun TarjetaAccesoRapido(
     titulo: String,
@@ -321,9 +283,6 @@ private fun TarjetaAccesoRapido(
     }
 }
 
-/**
- * Tarjeta circular/estilizada para especialidades destacadas.
- */
 @Composable
 private fun EspecialidadDestacadaCard(
     especialidad: Especialidad,
