@@ -12,7 +12,7 @@ import androidx.room.PrimaryKey
         ForeignKey(entity = Servicio::class, parentColumns = ["id"], childColumns = ["servicioId"])
     ],
     indices = [
-        Index ("mascotasId"),
+        Index("mascotaId"),
         Index("servicioId"),
         Index(value = ["fecha", "hora"])
     ]
