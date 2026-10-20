@@ -1,58 +1,59 @@
 package com.tecsup.huellitasvvet.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.graphics.Color
+import com.tecsup.huellitasvvet.model.Rol
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+private val DuenoClaro = lightColorScheme(
+    primary = Esmeralda,
+    onPrimary = Color.White,
+    primaryContainer = EsmeraldaContenedor,
+    onPrimaryContainer = Color(0xFF064E3B),
+    background = FondoDueno,
+    surface = Color.White,
+    surfaceVariant = Color(0xFFF1F5F9),
+    onSurfaceVariant = Color(0xFF64748B),
+    outlineVariant = Color(0xFFE2E8F0)
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+private val DuenoOscuro = darkColorScheme(
+    primary = EsmeraldaOscuro,
+    onPrimary = Color(0xFF003824),
+    primaryContainer = EsmeraldaContenedorOscuro,
+    onPrimaryContainer = EsmeraldaContenedor
+)
 
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+private val VetClaro = lightColorScheme(
+    primary = Azul,
     onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primaryContainer = AzulContenedor,
+    onPrimaryContainer = Color(0xFF1E3A8A),
+    background = FondoVet,
+    surface = Color.White,
+    surfaceVariant = Color(0xFFF1F5F9),
+    onSurfaceVariant = Color(0xFF64748B),
+    outlineVariant = Color(0xFFE2E8F0)
+)
+
+private val VetOscuro = darkColorScheme(
+    primary = AzulOscuro,
+    onPrimary = Color(0xFF0B1F4D),
+    primaryContainer = AzulContenedorOscuro,
+    onPrimaryContainer = AzulContenedor
 )
 
 @Composable
-fun HuellitasvVetTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+fun VetTheme(
+    rol: Rol = Rol.CLIENTE,
+    oscuro: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+    val esquema = when (rol) {
+        Rol.ADMIN -> if (oscuro) VetOscuro else VetClaro
+        else -> if (oscuro) DuenoOscuro else DuenoClaro
     }
-
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    MaterialTheme(colorScheme = esquema, typography = Typography, content = content)
 }
