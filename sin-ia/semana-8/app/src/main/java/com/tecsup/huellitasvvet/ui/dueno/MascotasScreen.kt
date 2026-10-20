@@ -137,3 +137,7 @@ internal fun fechaLegible(fecha: String): String {
     val d = LocalDate.parse(fecha)
     return "${DIAS[d.dayOfWeek.value - 1]} ${d.dayOfMonth} ${MESES[d.monthValue - 1]}"
 }
+internal fun fechaCorta(fecha: String): String {
+    val d = LocalDate.parse(fecha)
+    return "${d.dayOfMonth} ${MESES[d.monthValue - 1]}"
+}

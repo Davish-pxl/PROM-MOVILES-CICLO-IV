@@ -40,11 +40,14 @@ import androidx.navigation.navArgument
 import com.tecsup.huellitasvvet.VetApp
 import com.tecsup.huellitasvvet.data.local.entity.Usuario
 import com.tecsup.huellitasvvet.model.Rol
+import com.tecsup.huellitasvvet.ui.dueno.FichaMascotaScreen
+import com.tecsup.huellitasvvet.ui.dueno.FormularioMascotaScreen
 import com.tecsup.huellitasvvet.ui.dueno.InicioScreen
 import com.tecsup.huellitasvvet.ui.dueno.LoginScreen
 import com.tecsup.huellitasvvet.ui.dueno.MascotasScreen
 import com.tecsup.huellitasvvet.ui.dueno.SplashScreen
 import com.tecsup.huellitasvvet.viewmodel.InicioViewModel
+import com.tecsup.huellitasvvet.viewmodel.MascotaViewModel
 import com.tecsup.huellitasvvet.viewmodel.SesionViewModel
 import com.tecsup.huellitasvvet.viewmodel.VetViewModelFactory
 
@@ -120,21 +123,46 @@ fun NavVet(sesionVm: SesionViewModel) {
         composable(
             Rutas.FICHA_MASCOTA,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
-        ) {
-            PantallaPendiente("Ficha de la mascota\n(Paso 8)")
+        ) { entry ->
+            val id = entry.arguments?.getInt("id") ?: 0
+            ConBarraDueno(nav) {
+                ConUsuario(usuario) { u ->
+                    val vm: MascotaViewModel = viewModel(
+                        factory = VetViewModelFactory { MascotaViewModel(app.repository, u.id) }
+                    )
+                    FichaMascotaScreen(
+                        vm = vm,
+                        mascotaId = id,
+                        onAtras = { nav.popBackStack() },
+                        onEditar = { nav.navigate(Rutas.formMascota(id)) },
+                        onPedirCita = { nav.navigate(Rutas.PEDIR_CITA) }
+                    )
+                }
+            }
         }
 
         composable(
             Rutas.FORM_MASCOTA,
             arguments = listOf(navArgument("id") { type = NavType.IntType; defaultValue = 0 })
-        ) {
-            PantallaPendiente("Formulario de mascota\n(Paso 8)")
+        ) { entry ->
+            val id = entry.arguments?.getInt("id") ?: 0
+            ConUsuario(usuario) { u ->
+                val vm: MascotaViewModel = viewModel(
+                    factory = VetViewModelFactory { MascotaViewModel(app.repository, u.id) }
+                )
+                FormularioMascotaScreen(
+                    vm = vm,
+                    mascotaId = id,
+                    onAtras = { nav.popBackStack() },
+                    onGuardado = { nav.popBackStack() },
+                    onEliminada = { nav.popBackStack(Rutas.FICHA_MASCOTA, inclusive = true) }
+                )
+            }
         }
 
         composable(Rutas.PEDIR_CITA) {
             PantallaPendiente("Pedir cita\n(Paso 9)")
         }
-
         composable(Rutas.PANEL) {
             PantallaTemporal("Panel del veterinario") {
                 sesionVm.cerrarSesion()
@@ -143,7 +171,6 @@ fun NavVet(sesionVm: SesionViewModel) {
         }
     }
 }
-
 
 private data class ItemBarra(val ruta: String, val titulo: String, val icono: ImageVector)
 
@@ -162,7 +189,8 @@ private fun ConBarraDueno(nav: NavHostController, contenido: @Composable () -> U
             NavigationBar {
                 itemsDueno.forEach { item ->
                     NavigationBarItem(
-                        selected = rutaActual == item.ruta,
+                        selected = rutaActual == item.ruta ||
+                                (item.ruta == Rutas.MASCOTAS && rutaActual == Rutas.FICHA_MASCOTA),
                         onClick = { nav.irPestana(item.ruta) },
                         icon = { Icon(item.icono, contentDescription = null) },
                         label = { Text(item.titulo) }
@@ -185,13 +213,11 @@ private fun ConUsuario(usuario: Usuario?, contenido: @Composable (Usuario) -> Un
         contenido(usuario)
     }
 }
-
 private fun NavHostController.irLimpio(ruta: String) {
     navigate(ruta) {
         popUpTo(graph.id) { inclusive = true }
     }
 }
-
 private fun NavHostController.irPestana(ruta: String) {
     navigate(ruta) {
         popUpTo(Rutas.INICIO) { saveState = true }
