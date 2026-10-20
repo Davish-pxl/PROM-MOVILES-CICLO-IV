@@ -12,6 +12,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.first
+
 
 class SesionViewModel(
     private val repo: VetRepository,
@@ -29,6 +31,16 @@ class SesionViewModel(
 
     val perfilActivo: StateFlow<String?> =
         prefs.perfilActivo.stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    init {
+        viewModelScope.launch {
+            val perfil = prefs.perfilActivo.first()
+            val id = prefs.usuarioId.first()
+            if (perfil.isNotEmpty() && id > 0) {
+                _usuarioActual.value = repo.obtenerUsuario(id)
+            }
+        }
+    }
 
     fun login(correo: String, clave: String, rolSeleccionado: Rol) {
         if (correo.isBlank() || clave.isBlank()) {

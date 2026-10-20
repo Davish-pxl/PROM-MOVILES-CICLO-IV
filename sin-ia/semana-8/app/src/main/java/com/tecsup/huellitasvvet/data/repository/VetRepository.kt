@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface VetRepository {
     suspend fun login(correo: String, clave: String): Usuario?
+    suspend fun obtenerUsuario(id: Int): Usuario?
     fun observarServicios(): Flow<List<Servicio>>
     fun observarServiciosActivos(): Flow<List<Servicio>>
     suspend fun guardarServicio(s: Servicio)
