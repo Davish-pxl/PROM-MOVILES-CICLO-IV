@@ -45,9 +45,11 @@ import com.tecsup.huellitasvvet.ui.dueno.FormularioMascotaScreen
 import com.tecsup.huellitasvvet.ui.dueno.InicioScreen
 import com.tecsup.huellitasvvet.ui.dueno.LoginScreen
 import com.tecsup.huellitasvvet.ui.dueno.MascotasScreen
+import com.tecsup.huellitasvvet.ui.dueno.PedirCitaScreen
 import com.tecsup.huellitasvvet.ui.dueno.SplashScreen
 import com.tecsup.huellitasvvet.viewmodel.InicioViewModel
 import com.tecsup.huellitasvvet.viewmodel.MascotaViewModel
+import com.tecsup.huellitasvvet.viewmodel.PedirCitaViewModel
 import com.tecsup.huellitasvvet.viewmodel.SesionViewModel
 import com.tecsup.huellitasvvet.viewmodel.VetViewModelFactory
 
@@ -86,7 +88,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                         onAbrirMascota = { id -> nav.navigate(Rutas.fichaMascota(id)) },
                         onAgregarMascota = { nav.navigate(Rutas.formMascota()) },
                         onVerTodas = { nav.irPestana(Rutas.MASCOTAS) },
-                        onPedirCita = { nav.navigate(Rutas.PEDIR_CITA) }
+                        onPedirCita = { nav.navigate(Rutas.pedirCita()) }
                     )
                 }
             }
@@ -135,7 +137,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                         mascotaId = id,
                         onAtras = { nav.popBackStack() },
                         onEditar = { nav.navigate(Rutas.formMascota(id)) },
-                        onPedirCita = { nav.navigate(Rutas.PEDIR_CITA) }
+                        onPedirCita = { nav.navigate(Rutas.pedirCita(id)) }
                     )
                 }
             }
@@ -160,9 +162,30 @@ fun NavVet(sesionVm: SesionViewModel) {
             }
         }
 
-        composable(Rutas.PEDIR_CITA) {
-            PantallaPendiente("Pedir cita\n(Paso 9)")
+        composable(
+            Rutas.PEDIR_CITA,
+            arguments = listOf(navArgument("mascotaId") { type = NavType.IntType; defaultValue = 0 })
+        ) { entry ->
+            val mascotaId = entry.arguments?.getInt("mascotaId") ?: 0
+            ConUsuario(usuario) { u ->
+                val vm: PedirCitaViewModel = viewModel(
+                    factory = VetViewModelFactory {
+                        PedirCitaViewModel(app.repository, u.id, mascotaId.takeIf { it > 0 })
+                    }
+                )
+                PedirCitaScreen(
+                    vm = vm,
+                    onAtras = { nav.popBackStack() },
+                    onCitaCreada = {
+                        nav.navigate(Rutas.MIS_CITAS) {
+                            popUpTo(Rutas.INICIO)
+                            launchSingleTop = true
+                        }
+                    }
+                )
+            }
         }
+
         composable(Rutas.PANEL) {
             PantallaTemporal("Panel del veterinario") {
                 sesionVm.cerrarSesion()
@@ -202,7 +225,6 @@ private fun ConBarraDueno(nav: NavHostController, contenido: @Composable () -> U
         Box(Modifier.padding(padding)) { contenido() }
     }
 }
-
 @Composable
 private fun ConUsuario(usuario: Usuario?, contenido: @Composable (Usuario) -> Unit) {
     if (usuario == null) {
@@ -219,6 +241,13 @@ private fun NavHostController.irLimpio(ruta: String) {
     }
 }
 private fun NavHostController.irPestana(ruta: String) {
+    if (ruta == Rutas.INICIO) {
+        // Volver al Inicio: se quita todo lo que está encima
+        if (!popBackStack(Rutas.INICIO, inclusive = false)) {
+            navigate(Rutas.INICIO)
+        }
+        return
+    }
     navigate(ruta) {
         popUpTo(Rutas.INICIO) { saveState = true }
         launchSingleTop = true
