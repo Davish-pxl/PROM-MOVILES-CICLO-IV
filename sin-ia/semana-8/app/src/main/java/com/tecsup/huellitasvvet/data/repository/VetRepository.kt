@@ -1,4 +1,4 @@
-package com.tecsup.huellitasvvet.data.local.repository
+package com.tecsup.huellitasvvet.data.repository
 
 import com.tecsup.huellitasvvet.data.local.entity.Mascota
 import com.tecsup.huellitasvvet.data.local.entity.Servicio
