@@ -1,4 +1,4 @@
-package com.tecsup.huellitasvvet.data.local.repository
+package com.tecsup.huellitasvvet.data.repository
 
 import androidx.room.withTransaction
 import com.tecsup.huellitasvvet.data.local.VetDatabase

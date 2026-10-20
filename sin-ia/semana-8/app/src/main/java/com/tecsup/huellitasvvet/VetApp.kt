@@ -3,8 +3,8 @@ package com.tecsup.huellitasvvet
 import android.app.Application
 import com.tecsup.huellitasvvet.data.local.DatosIniciales
 import com.tecsup.huellitasvvet.data.local.VetDatabase
-import com.tecsup.huellitasvvet.data.local.repository.VetRepository
-import com.tecsup.huellitasvvet.data.local.repository.VetRepositoryRoom
+import com.tecsup.huellitasvvet.data.repository.VetRepository
+import com.tecsup.huellitasvvet.data.repository.VetRepositoryRoom
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
