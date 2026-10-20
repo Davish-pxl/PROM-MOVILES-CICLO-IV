@@ -10,11 +10,14 @@ object Rutas {
     const val PERFIL = "perfil"
     const val FICHA_MASCOTA = "ficha_mascota/{id}"
     const val FORM_MASCOTA = "form_mascota?id={id}"
-    const val PEDIR_CITA = "pedir_cita"
+    const val PEDIR_CITA = "pedir_cita?mascotaId={mascotaId}"
 
     fun fichaMascota(id: Int) = "ficha_mascota/$id"
     fun formMascota(id: Int? = null) =
         if (id == null) "form_mascota" else "form_mascota?id=$id"
+
+    fun pedirCita(mascotaId: Int? = null) =
+        if (mascotaId == null) "pedir_cita" else "pedir_cita?mascotaId=$mascotaId"
 
     const val PANEL = "panel"
 }
