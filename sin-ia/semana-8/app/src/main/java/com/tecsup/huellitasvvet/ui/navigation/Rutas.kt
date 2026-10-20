@@ -15,9 +15,14 @@ object Rutas {
     fun fichaMascota(id: Int) = "ficha_mascota/$id"
     fun formMascota(id: Int? = null) =
         if (id == null) "form_mascota" else "form_mascota?id=$id"
-
     fun pedirCita(mascotaId: Int? = null) =
         if (mascotaId == null) "pedir_cita" else "pedir_cita?mascotaId=$mascotaId"
-
     const val PANEL = "panel"
+    const val AGENDA = "agenda"
+    const val PACIENTES = "pacientes"
+    const val SERVICIOS = "servicios"
+    const val AJUSTES = "ajustes"
+    const val ATENDER_CITA = "atender_cita/{id}"
+
+    fun atenderCita(id: Int) = "atender_cita/$id"
 }

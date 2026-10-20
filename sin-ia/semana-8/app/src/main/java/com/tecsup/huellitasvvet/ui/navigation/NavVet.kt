@@ -8,10 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Pets
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -49,9 +52,13 @@ import com.tecsup.huellitasvvet.ui.dueno.MisCitasScreen
 import com.tecsup.huellitasvvet.ui.dueno.PedirCitaScreen
 import com.tecsup.huellitasvvet.ui.dueno.PerfilScreen
 import com.tecsup.huellitasvvet.ui.dueno.SplashScreen
+import com.tecsup.huellitasvvet.ui.veterinario.AgendaScreen
+import com.tecsup.huellitasvvet.ui.veterinario.PanelScreen
+import com.tecsup.huellitasvvet.viewmodel.AgendaViewModel
 import com.tecsup.huellitasvvet.viewmodel.InicioViewModel
 import com.tecsup.huellitasvvet.viewmodel.MascotaViewModel
 import com.tecsup.huellitasvvet.viewmodel.MisCitasViewModel
+import com.tecsup.huellitasvvet.viewmodel.PanelViewModel
 import com.tecsup.huellitasvvet.viewmodel.PedirCitaViewModel
 import com.tecsup.huellitasvvet.viewmodel.SesionViewModel
 import com.tecsup.huellitasvvet.viewmodel.VetViewModelFactory
@@ -79,7 +86,6 @@ fun NavVet(sesionVm: SesionViewModel) {
                 nav.irLimpio(if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.INICIO)
             }
         }
-
         composable(Rutas.INICIO) {
             ConBarraDueno(nav) {
                 ConUsuario(usuario) { u ->
@@ -90,7 +96,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                         vm = vm,
                         onAbrirMascota = { id -> nav.navigate(Rutas.fichaMascota(id)) },
                         onAgregarMascota = { nav.navigate(Rutas.formMascota()) },
-                        onVerTodas = { nav.irPestana(Rutas.MASCOTAS) },
+                        onVerTodas = { nav.irPestana(Rutas.MASCOTAS, Rutas.INICIO) },
                         onPedirCita = { nav.navigate(Rutas.pedirCita()) }
                     )
                 }
@@ -120,7 +126,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                     )
                     MisCitasScreen(
                         vm = vm,
-                        onAtras = { nav.irPestana(Rutas.INICIO) },
+                        onAtras = { nav.irPestana(Rutas.INICIO, Rutas.INICIO) },
                         onPedirCita = { nav.navigate(Rutas.pedirCita()) }
                     )
                 }
@@ -206,10 +212,52 @@ fun NavVet(sesionVm: SesionViewModel) {
         }
 
         composable(Rutas.PANEL) {
-            PantallaTemporal("Panel del veterinario") {
-                sesionVm.cerrarSesion()
-                nav.irLimpio(Rutas.LOGIN)
+            ConBarraVet(nav) {
+                val vm: PanelViewModel = viewModel(
+                    factory = VetViewModelFactory { PanelViewModel(app.repository) }
+                )
+                PanelScreen(
+                    vm = vm,
+                    onVerAgenda = { nav.irPestana(Rutas.AGENDA, Rutas.PANEL) }
+                )
             }
+        }
+
+        composable(Rutas.AGENDA) {
+            ConBarraVet(nav) {
+                val vm: AgendaViewModel = viewModel(
+                    factory = VetViewModelFactory { AgendaViewModel(app.repository) }
+                )
+                AgendaScreen(
+                    vm = vm,
+                    onAtras = { nav.irPestana(Rutas.PANEL, Rutas.PANEL) },
+                    onAtender = { id -> nav.navigate(Rutas.atenderCita(id)) }
+                )
+            }
+        }
+
+        composable(Rutas.PACIENTES) {
+            ConBarraVet(nav) { PantallaPendiente("Pacientes\n(Paso 12)") }
+        }
+
+        composable(Rutas.SERVICIOS) {
+            ConBarraVet(nav) { PantallaPendiente("Servicios\n(Paso 13)") }
+        }
+
+        composable(Rutas.AJUSTES) {
+            ConBarraVet(nav) {
+                PantallaTemporal("Ajustes\n(Paso 13)") {
+                    sesionVm.cerrarSesion()
+                    nav.irLimpio(Rutas.LOGIN)
+                }
+            }
+        }
+
+        composable(
+            Rutas.ATENDER_CITA,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) {
+            PantallaPendiente("Atender cita\n(Paso 12)")
         }
     }
 }
@@ -223,17 +271,37 @@ private val itemsDueno = listOf(
     ItemBarra(Rutas.PERFIL, "Perfil", Icons.Outlined.Person)
 )
 
+private val itemsVet = listOf(
+    ItemBarra(Rutas.PANEL, "Panel", Icons.Outlined.BarChart),
+    ItemBarra(Rutas.AGENDA, "Agenda", Icons.Outlined.CalendarMonth),
+    ItemBarra(Rutas.PACIENTES, "Pacientes", Icons.Outlined.Pets),
+    ItemBarra(Rutas.SERVICIOS, "Servicios", Icons.Outlined.LocalOffer),
+    ItemBarra(Rutas.AJUSTES, "Ajustes", Icons.Outlined.Settings)
+)
+
 @Composable
-private fun ConBarraDueno(nav: NavHostController, contenido: @Composable () -> Unit) {
+private fun ConBarraDueno(nav: NavHostController, contenido: @Composable () -> Unit) =
+    ConBarra(nav, itemsDueno, Rutas.INICIO, contenido)
+
+@Composable
+private fun ConBarraVet(nav: NavHostController, contenido: @Composable () -> Unit) =
+    ConBarra(nav, itemsVet, Rutas.PANEL, contenido)
+@Composable
+private fun ConBarra(
+    nav: NavHostController,
+    items: List<ItemBarra>,
+    raiz: String,
+    contenido: @Composable () -> Unit
+) {
     val rutaActual = nav.currentBackStackEntryAsState().value?.destination?.route
     Scaffold(
         bottomBar = {
             NavigationBar {
-                itemsDueno.forEach { item ->
+                items.forEach { item ->
                     NavigationBarItem(
                         selected = rutaActual == item.ruta ||
                                 (item.ruta == Rutas.MASCOTAS && rutaActual == Rutas.FICHA_MASCOTA),
-                        onClick = { nav.irPestana(item.ruta) },
+                        onClick = { nav.irPestana(item.ruta, raiz) },
                         icon = { Icon(item.icono, contentDescription = null) },
                         label = { Text(item.titulo) }
                     )
@@ -260,20 +328,32 @@ private fun NavHostController.irLimpio(ruta: String) {
         popUpTo(graph.id) { inclusive = true }
     }
 }
-
-private fun NavHostController.irPestana(ruta: String) {
-    if (ruta == Rutas.INICIO) {
-        if (!popBackStack(Rutas.INICIO, inclusive = false)) {
-            navigate(Rutas.INICIO)
+private fun NavHostController.irPestana(ruta: String, raiz: String) {
+    if (ruta == raiz) {
+        if (!popBackStack(raiz, inclusive = false)) {
+            navigate(raiz)
         }
         return
     }
     navigate(ruta) {
-        popUpTo(Rutas.INICIO) { saveState = true }
+        popUpTo(raiz) { saveState = true }
         launchSingleTop = true
         restoreState = true
     }
 }
+
+@Composable
+private fun PantallaPendiente(titulo: String) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            titulo,
+            style = MaterialTheme.typography.titleMedium,
+            textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
 @Composable
 private fun PantallaTemporal(titulo: String, onCerrarSesion: () -> Unit) {
     Column(
