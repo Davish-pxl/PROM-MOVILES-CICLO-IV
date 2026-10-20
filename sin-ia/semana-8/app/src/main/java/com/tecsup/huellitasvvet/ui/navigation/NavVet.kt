@@ -45,10 +45,13 @@ import com.tecsup.huellitasvvet.ui.dueno.FormularioMascotaScreen
 import com.tecsup.huellitasvvet.ui.dueno.InicioScreen
 import com.tecsup.huellitasvvet.ui.dueno.LoginScreen
 import com.tecsup.huellitasvvet.ui.dueno.MascotasScreen
+import com.tecsup.huellitasvvet.ui.dueno.MisCitasScreen
 import com.tecsup.huellitasvvet.ui.dueno.PedirCitaScreen
+import com.tecsup.huellitasvvet.ui.dueno.PerfilScreen
 import com.tecsup.huellitasvvet.ui.dueno.SplashScreen
 import com.tecsup.huellitasvvet.viewmodel.InicioViewModel
 import com.tecsup.huellitasvvet.viewmodel.MascotaViewModel
+import com.tecsup.huellitasvvet.viewmodel.MisCitasViewModel
 import com.tecsup.huellitasvvet.viewmodel.PedirCitaViewModel
 import com.tecsup.huellitasvvet.viewmodel.SesionViewModel
 import com.tecsup.huellitasvvet.viewmodel.VetViewModelFactory
@@ -110,14 +113,30 @@ fun NavVet(sesionVm: SesionViewModel) {
         }
 
         composable(Rutas.MIS_CITAS) {
-            ConBarraDueno(nav) { PantallaPendiente("Mis citas\n(Paso 10)") }
+            ConBarraDueno(nav) {
+                ConUsuario(usuario) { u ->
+                    val vm: MisCitasViewModel = viewModel(
+                        factory = VetViewModelFactory { MisCitasViewModel(app.repository, u.id) }
+                    )
+                    MisCitasScreen(
+                        vm = vm,
+                        onAtras = { nav.irPestana(Rutas.INICIO) },
+                        onPedirCita = { nav.navigate(Rutas.pedirCita()) }
+                    )
+                }
+            }
         }
 
         composable(Rutas.PERFIL) {
             ConBarraDueno(nav) {
-                PantallaTemporal("Perfil\n(Paso 13)") {
-                    sesionVm.cerrarSesion()
-                    nav.irLimpio(Rutas.LOGIN)
+                ConUsuario(usuario) { u ->
+                    PerfilScreen(
+                        usuario = u,
+                        onCerrarSesion = {
+                            sesionVm.cerrarSesion()
+                            nav.irLimpio(Rutas.LOGIN)
+                        }
+                    )
                 }
             }
         }
@@ -235,14 +254,15 @@ private fun ConUsuario(usuario: Usuario?, contenido: @Composable (Usuario) -> Un
         contenido(usuario)
     }
 }
+
 private fun NavHostController.irLimpio(ruta: String) {
     navigate(ruta) {
         popUpTo(graph.id) { inclusive = true }
     }
 }
+
 private fun NavHostController.irPestana(ruta: String) {
     if (ruta == Rutas.INICIO) {
-        // Volver al Inicio: se quita todo lo que está encima
         if (!popBackStack(Rutas.INICIO, inclusive = false)) {
             navigate(Rutas.INICIO)
         }
@@ -254,19 +274,6 @@ private fun NavHostController.irPestana(ruta: String) {
         restoreState = true
     }
 }
-
-@Composable
-private fun PantallaPendiente(titulo: String) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            titulo,
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
 @Composable
 private fun PantallaTemporal(titulo: String, onCerrarSesion: () -> Unit) {
     Column(
