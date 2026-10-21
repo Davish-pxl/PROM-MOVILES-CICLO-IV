@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -43,6 +44,7 @@ class MascotaViewModel(
 
     private val mascotas = mutableMapOf<Int, StateFlow<Mascota?>>()
     private val historiales = mutableMapOf<Int, StateFlow<List<CitaConDetalle>>>()
+    private val vacunas = mutableMapOf<Int, StateFlow<Boolean>>()
 
     fun mascota(id: Int): StateFlow<Mascota?> = mascotas.getOrPut(id) {
         repo.observarMascota(id)
@@ -52,6 +54,18 @@ class MascotaViewModel(
     fun historial(mascotaId: Int): StateFlow<List<CitaConDetalle>> = historiales.getOrPut(mascotaId) {
         repo.observarHistorial(mascotaId)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }
+
+    fun vacunasAlDia(mascotaId: Int): StateFlow<Boolean> = vacunas.getOrPut(mascotaId) {
+        historial(mascotaId)
+            .map { lista ->
+                lista
+                    .filter { it.servicio.nombre.startsWith("Vacun", ignoreCase = true) }
+                    .maxOfOrNull { LocalDate.parse(it.cita.fecha) }
+                    ?.let { !it.plusYears(1).isBefore(LocalDate.now()) }
+                    ?: false
+            }
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
     }
 
     fun guardar(mascota: Mascota) {

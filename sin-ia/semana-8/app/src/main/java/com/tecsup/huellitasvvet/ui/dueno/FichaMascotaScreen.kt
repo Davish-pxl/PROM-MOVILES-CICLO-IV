@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -61,6 +62,7 @@ fun FichaMascotaScreen(
 ) {
     val mascota by remember(mascotaId) { vm.mascota(mascotaId) }.collectAsState()
     val historial by remember(mascotaId) { vm.historial(mascotaId) }.collectAsState()
+    val alDia by remember(mascotaId) { vm.vacunasAlDia(mascotaId) }.collectAsState()
     var pestana by rememberSaveable { mutableIntStateOf(1) }
 
     Scaffold(
@@ -105,6 +107,21 @@ fun FichaMascotaScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+                            if (alDia) {
+                                Spacer(Modifier.height(6.dp))
+                                Surface(
+                                    shape = RoundedCornerShape(50),
+                                    color = MaterialTheme.colorScheme.primaryContainer
+                                ) {
+                                    Text(
+                                        "Vacunas al día",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
                         }
                     }
                 }

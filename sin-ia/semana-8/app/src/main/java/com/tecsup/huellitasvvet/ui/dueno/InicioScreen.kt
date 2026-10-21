@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ContentCut
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MedicalServices
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Vaccines
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Schedule
@@ -45,7 +46,9 @@ import com.tecsup.huellitasvvet.data.local.entity.Servicio
 import com.tecsup.huellitasvvet.data.local.relation.CitaConDetalle
 import com.tecsup.huellitasvvet.ui.components.MascotaAvatar
 import com.tecsup.huellitasvvet.ui.components.VetButton
+import com.tecsup.huellitasvvet.ui.theme.EstadoPendiente
 import com.tecsup.huellitasvvet.viewmodel.InicioViewModel
+import com.tecsup.huellitasvvet.viewmodel.Recordatorio
 
 @Composable
 fun InicioScreen(
@@ -58,6 +61,7 @@ fun InicioScreen(
     val mascotas by vm.mascotas.collectAsState()
     val proxima by vm.proximaCita.collectAsState()
     val servicios by vm.servicios.collectAsState()
+    val recordatorio by vm.recordatorio.collectAsState()
 
     Column(
         modifier = Modifier
@@ -99,6 +103,10 @@ fun InicioScreen(
             servicios.forEach { s ->
                 TarjetaServicio(s, onClick = onPedirCita, modifier = Modifier.weight(1f))
             }
+        }
+        recordatorio?.let {
+            Spacer(Modifier.height(20.dp))
+            TarjetaRecordatorio(it)
         }
         Spacer(Modifier.height(28.dp))
 
@@ -274,6 +282,30 @@ private fun TarjetaServicio(s: Servicio, onClick: () -> Unit, modifier: Modifier
     }
 }
 
+@Composable
+private fun TarjetaRecordatorio(r: Recordatorio) {
+    val cuando = when (r.dias) {
+        0L -> "hoy"
+        1L -> "mañana"
+        else -> "en ${r.dias} días"
+    }
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = EstadoPendiente.copy(alpha = 0.15f),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Filled.Notifications, contentDescription = null, tint = EstadoPendiente)
+            Spacer(Modifier.width(12.dp))
+            Column {
+                Text("Recordatorio", style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold, color = EstadoPendiente)
+                Text("${r.mascota}: refuerzo de vacuna $cuando",
+                    style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
 internal fun iconoServicio(icono: String): ImageVector = when (icono) {
     "heart" -> Icons.Filled.Favorite
     "syringe" -> Icons.Filled.Vaccines
