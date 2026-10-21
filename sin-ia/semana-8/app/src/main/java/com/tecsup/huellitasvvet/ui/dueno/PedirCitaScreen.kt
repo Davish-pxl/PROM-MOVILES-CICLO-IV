@@ -17,6 +17,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -58,6 +60,7 @@ fun PedirCitaScreen(
     val puedeConfirmar by vm.puedeConfirmar.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
     val citaCreada by vm.citaCreada.collectAsState()
+    val aceptaCitas by vm.aceptaCitas.collectAsState()
 
     LaunchedEffect(citaCreada) { if (citaCreada) onCitaCreada() }
 
@@ -72,6 +75,27 @@ fun PedirCitaScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
+            if (!aceptaCitas) {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                ) {
+                    Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Filled.Warning, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onErrorContainer)
+                        Spacer(Modifier.width(10.dp))
+                        Text(
+                            "La clínica no está recibiendo citas",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+                    }
+                }
+            }
 
             TituloSeccion("¿Quién viene?")
             if (mascotas.isEmpty()) {
@@ -99,7 +123,7 @@ fun PedirCitaScreen(
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box1 { TituloSeccion("Hora") }
+                TituloSeccion("Hora")
                 Spacer(Modifier.weight(1f))
                 Text("Ocupado = gris", style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -155,9 +179,6 @@ fun PedirCitaScreen(
         }
     }
 }
-
-@Composable
-private fun Box1(contenido: @Composable () -> Unit) = contenido()
 
 @Composable
 private fun TituloSeccion(texto: String) {

@@ -1,11 +1,7 @@
 package com.tecsup.huellitasvvet.ui.navigation
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BarChart
@@ -17,10 +13,8 @@ import androidx.compose.material.icons.outlined.Pets
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,8 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -42,6 +34,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.huellitasvvet.VetApp
 import com.tecsup.huellitasvvet.data.local.entity.Usuario
+import com.tecsup.huellitasvvet.data.prefs.PreferenciasStore
 import com.tecsup.huellitasvvet.model.Rol
 import com.tecsup.huellitasvvet.ui.dueno.FichaMascotaScreen
 import com.tecsup.huellitasvvet.ui.dueno.FormularioMascotaScreen
@@ -53,9 +46,12 @@ import com.tecsup.huellitasvvet.ui.dueno.PedirCitaScreen
 import com.tecsup.huellitasvvet.ui.dueno.PerfilScreen
 import com.tecsup.huellitasvvet.ui.dueno.SplashScreen
 import com.tecsup.huellitasvvet.ui.veterinario.AgendaScreen
+import com.tecsup.huellitasvvet.ui.veterinario.AjustesScreen
 import com.tecsup.huellitasvvet.ui.veterinario.AtenderCitaScreen
+import com.tecsup.huellitasvvet.ui.veterinario.FormularioServicioScreen
 import com.tecsup.huellitasvvet.ui.veterinario.PacientesScreen
 import com.tecsup.huellitasvvet.ui.veterinario.PanelScreen
+import com.tecsup.huellitasvvet.ui.veterinario.ServiciosScreen
 import com.tecsup.huellitasvvet.viewmodel.AgendaViewModel
 import com.tecsup.huellitasvvet.viewmodel.AtenderCitaViewModel
 import com.tecsup.huellitasvvet.viewmodel.InicioViewModel
@@ -64,6 +60,7 @@ import com.tecsup.huellitasvvet.viewmodel.MisCitasViewModel
 import com.tecsup.huellitasvvet.viewmodel.PacientesViewModel
 import com.tecsup.huellitasvvet.viewmodel.PanelViewModel
 import com.tecsup.huellitasvvet.viewmodel.PedirCitaViewModel
+import com.tecsup.huellitasvvet.viewmodel.ServiciosViewModel
 import com.tecsup.huellitasvvet.viewmodel.SesionViewModel
 import com.tecsup.huellitasvvet.viewmodel.VetViewModelFactory
 
@@ -72,7 +69,20 @@ fun NavVet(sesionVm: SesionViewModel) {
     val nav = rememberNavController()
     val perfil by sesionVm.perfilActivo.collectAsState()
     val usuario by sesionVm.usuarioActual.collectAsState()
+    val modoOscuro by sesionVm.modoOscuro.collectAsState()
+    val notificaciones by sesionVm.notificaciones.collectAsState()
+    val aceptarCitas by sesionVm.aceptarCitas.collectAsState()
     val app = LocalContext.current.applicationContext as VetApp
+
+    val cambiarPerfil: () -> Unit = {
+        sesionVm.cambiarPerfil { rol ->
+            nav.irLimpio(if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.INICIO)
+        }
+    }
+    val cerrarSesion: () -> Unit = {
+        sesionVm.cerrarSesion()
+        nav.irLimpio(Rutas.LOGIN)
+    }
 
     NavHost(navController = nav, startDestination = Rutas.SPLASH) {
 
@@ -140,12 +150,28 @@ fun NavVet(sesionVm: SesionViewModel) {
         composable(Rutas.PERFIL) {
             ConBarraDueno(nav) {
                 ConUsuario(usuario) { u ->
+                    val inicioVm: InicioViewModel = viewModel(
+                        factory = VetViewModelFactory { InicioViewModel(app.repository, u) }
+                    )
+                    val citasVm: MisCitasViewModel = viewModel(
+                        factory = VetViewModelFactory { MisCitasViewModel(app.repository, u.id) }
+                    )
+                    val mascotas by inicioVm.mascotas.collectAsState()
+                    val proximas by citasVm.proximas.collectAsState()
+                    val atenciones by citasVm.atenciones.collectAsState()
+
                     PerfilScreen(
                         usuario = u,
-                        onCerrarSesion = {
-                            sesionVm.cerrarSesion()
-                            nav.irLimpio(Rutas.LOGIN)
-                        }
+                        cantidadMascotas = mascotas.size,
+                        citasProximas = proximas.size,
+                        atenciones = atenciones,
+                        modoOscuro = modoOscuro,
+                        recordatorios = notificaciones,
+                        onModoOscuro = sesionVm::cambiarModoOscuro,
+                        onRecordatorios = sesionVm::cambiarNotificaciones,
+                        onCambiarPerfil = cambiarPerfil,
+                        onCerrarSesion = cerrarSesion,
+                        onAtras = { nav.irPestana(Rutas.INICIO, Rutas.INICIO) }
                     )
                 }
             }
@@ -199,7 +225,12 @@ fun NavVet(sesionVm: SesionViewModel) {
             ConUsuario(usuario) { u ->
                 val vm: PedirCitaViewModel = viewModel(
                     factory = VetViewModelFactory {
-                        PedirCitaViewModel(app.repository, u.id, mascotaId.takeIf { it > 0 })
+                        PedirCitaViewModel(
+                            app.repository,
+                            PreferenciasStore(app),
+                            u.id,
+                            mascotaId.takeIf { it > 0 }
+                        )
                     }
                 )
                 PedirCitaScreen(
@@ -214,7 +245,6 @@ fun NavVet(sesionVm: SesionViewModel) {
                 )
             }
         }
-
         composable(Rutas.PANEL) {
             ConBarraVet(nav) {
                 val vm: PanelViewModel = viewModel(
@@ -271,14 +301,51 @@ fun NavVet(sesionVm: SesionViewModel) {
         }
 
         composable(Rutas.SERVICIOS) {
-            ConBarraVet(nav) { PantallaPendiente("Servicios\n(Paso 13)") }
+            ConBarraVet(nav) {
+                val vm: ServiciosViewModel = viewModel(
+                    factory = VetViewModelFactory { ServiciosViewModel(app.repository) }
+                )
+                ServiciosScreen(
+                    vm = vm,
+                    onAtras = { nav.irPestana(Rutas.PANEL, Rutas.PANEL) },
+                    onNuevo = { nav.navigate(Rutas.formServicio()) },
+                    onEditar = { id -> nav.navigate(Rutas.formServicio(id)) }
+                )
+            }
+        }
+
+        composable(
+            Rutas.FORM_SERVICIO,
+            arguments = listOf(navArgument("id") { type = NavType.IntType; defaultValue = 0 })
+        ) { entry ->
+            val id = entry.arguments?.getInt("id") ?: 0
+            val vm: ServiciosViewModel = viewModel(
+                factory = VetViewModelFactory { ServiciosViewModel(app.repository) }
+            )
+            FormularioServicioScreen(
+                vm = vm,
+                servicioId = id,
+                onAtras = { nav.popBackStack() },
+                onGuardado = { nav.popBackStack() },
+                onEliminado = { nav.popBackStack() }
+            )
         }
 
         composable(Rutas.AJUSTES) {
             ConBarraVet(nav) {
-                PantallaTemporal("Ajustes\n(Paso 13)") {
-                    sesionVm.cerrarSesion()
-                    nav.irLimpio(Rutas.LOGIN)
+                ConUsuario(usuario) { u ->
+                    AjustesScreen(
+                        usuario = u,
+                        modoOscuro = modoOscuro,
+                        notificaciones = notificaciones,
+                        aceptarCitas = aceptarCitas,
+                        onModoOscuro = sesionVm::cambiarModoOscuro,
+                        onNotificaciones = sesionVm::cambiarNotificaciones,
+                        onAceptarCitas = sesionVm::cambiarAceptarCitas,
+                        onCambiarPerfil = cambiarPerfil,
+                        onCerrarSesion = cerrarSesion,
+                        onAtras = { nav.irPestana(Rutas.PANEL, Rutas.PANEL) }
+                    )
                 }
             }
         }
@@ -369,6 +436,7 @@ private fun NavHostController.irLimpio(ruta: String) {
 }
 private fun NavHostController.irPestana(ruta: String, raiz: String) {
     if (ruta == raiz) {
+        // Volver a la pantalla principal: se quita todo lo que está encima
         if (!popBackStack(raiz, inclusive = false)) {
             navigate(raiz)
         }
@@ -378,30 +446,5 @@ private fun NavHostController.irPestana(ruta: String, raiz: String) {
         popUpTo(raiz) { saveState = true }
         launchSingleTop = true
         restoreState = true
-    }
-}
-
-@Composable
-private fun PantallaPendiente(titulo: String) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            titulo,
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}
-
-@Composable
-private fun PantallaTemporal(titulo: String, onCerrarSesion: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(titulo, style = MaterialTheme.typography.headlineSmall, textAlign = TextAlign.Center)
-        Spacer(Modifier.height(16.dp))
-        OutlinedButton(onClick = onCerrarSesion) { Text("Cerrar sesión") }
     }
 }

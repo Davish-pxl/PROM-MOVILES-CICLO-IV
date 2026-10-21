@@ -23,7 +23,10 @@ object Rutas {
     const val AJUSTES = "ajustes"
     const val ATENDER_CITA = "atender_cita/{id}"
     const val FICHA_PACIENTE = "ficha_paciente/{id}"
+    const val FORM_SERVICIO = "form_servicio?id={id}"
 
     fun atenderCita(id: Int) = "atender_cita/$id"
     fun fichaPaciente(id: Int) = "ficha_paciente/$id"
+    fun formServicio(id: Int? = null) =
+        if (id == null) "form_servicio" else "form_servicio?id=$id"
 }

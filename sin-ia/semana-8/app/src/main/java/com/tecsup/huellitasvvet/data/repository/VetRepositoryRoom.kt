@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import com.tecsup.huellitasvvet.data.local.VetDatabase
 import com.tecsup.huellitasvvet.data.local.entity.Cita
 import com.tecsup.huellitasvvet.data.local.entity.Mascota
+import com.tecsup.huellitasvvet.model.Rol
 import com.tecsup.huellitasvvet.data.local.entity.Servicio
 import com.tecsup.huellitasvvet.data.local.entity.Usuario
 import com.tecsup.huellitasvvet.data.local.relation.CitaConDetalle
@@ -24,6 +25,9 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override suspend fun obtenerUsuario(id: Int): Usuario? =
         usuarioDao.obtener(id)
+
+    override suspend fun obtenerUsuarioPorRol(rol: Rol): Usuario? =
+        usuarioDao.obtenerPorRol(rol.name)
 
     override fun observarServicios(): Flow<List<Servicio>> =
         servicioDao.observarTodos()
