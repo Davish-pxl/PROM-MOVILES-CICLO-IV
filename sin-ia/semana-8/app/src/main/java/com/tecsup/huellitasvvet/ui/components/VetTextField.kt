@@ -25,7 +25,9 @@ fun VetTextField(
     error: String? = null,
     esClave: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
-    leadingIcon: ImageVector? = null
+    leadingIcon: ImageVector? = null,
+    singleLine: Boolean = true,
+    minLines: Int = 1
 ) {
     OutlinedTextField(
         value = value,
@@ -36,7 +38,8 @@ fun VetTextField(
         leadingIcon = if (leadingIcon != null) {
             { Icon(leadingIcon, contentDescription = null, tint = MaterialTheme.colorScheme.primary) }
         } else null,
-        singleLine = true,
+        singleLine = singleLine,
+        minLines = minLines,
         visualTransformation = if (esClave) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(
             keyboardType = if (esClave) KeyboardType.Password else keyboardType

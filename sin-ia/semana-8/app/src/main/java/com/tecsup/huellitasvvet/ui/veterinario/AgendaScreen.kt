@@ -209,7 +209,7 @@ private fun BotonPequeno(texto: String, onClick: () -> Unit) {
     }
 }
 
-private fun nombreCorto(nombre: String): String {
+internal fun nombreCorto(nombre: String): String {
     val partes = nombre.trim().split(" ")
     return if (partes.size > 1) "${partes[0]} ${partes[1].first()}." else nombre
 }
