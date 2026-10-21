@@ -56,12 +56,12 @@ fun FichaMascotaScreen(
     vm: MascotaViewModel,
     mascotaId: Int,
     onAtras: () -> Unit,
-    onEditar: () -> Unit,
-    onPedirCita: () -> Unit
+    onEditar: (() -> Unit)? = null,
+    onPedirCita: (() -> Unit)? = null
 ) {
     val mascota by remember(mascotaId) { vm.mascota(mascotaId) }.collectAsState()
     val historial by remember(mascotaId) { vm.historial(mascotaId) }.collectAsState()
-    var pestana by rememberSaveable { mutableIntStateOf(1) }   // abre en "Historial clínico"
+    var pestana by rememberSaveable { mutableIntStateOf(1) }
 
     Scaffold(
         topBar = { AppTopBar(mascota?.nombre ?: "", onAtras) }
@@ -110,34 +110,36 @@ fun FichaMascotaScreen(
                 }
                 Spacer(Modifier.height(16.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Button(
-                        onClick = onPedirCita,
-                        shape = RoundedCornerShape(14.dp),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(48.dp)
-                    ) {
-                        Icon(Icons.Outlined.CalendarMonth, contentDescription = null,
-                            modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("Pedir cita", fontWeight = FontWeight.SemiBold)
+                if (onPedirCita != null && onEditar != null) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Button(
+                            onClick = onPedirCita,
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(48.dp)
+                        ) {
+                            Icon(Icons.Outlined.CalendarMonth, contentDescription = null,
+                                modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Pedir cita", fontWeight = FontWeight.SemiBold)
+                        }
+                        OutlinedButton(
+                            onClick = onEditar,
+                            shape = RoundedCornerShape(14.dp),
+                            border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(48.dp)
+                        ) {
+                            Icon(Icons.Outlined.Edit, contentDescription = null,
+                                modifier = Modifier.size(18.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Editar", fontWeight = FontWeight.SemiBold)
+                        }
                     }
-                    OutlinedButton(
-                        onClick = onEditar,
-                        shape = RoundedCornerShape(14.dp),
-                        border = BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary),
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(48.dp)
-                    ) {
-                        Icon(Icons.Outlined.Edit, contentDescription = null,
-                            modifier = Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text("Editar", fontWeight = FontWeight.SemiBold)
-                    }
+                    Spacer(Modifier.height(16.dp))
                 }
-                Spacer(Modifier.height(16.dp))
 
                 SelectorPestanas(pestana) { pestana = it }
                 Spacer(Modifier.height(16.dp))
@@ -218,7 +220,7 @@ private fun FilaDato(etiqueta: String, valor: String) {
     HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
 }
 
-private fun especieSegunSexo(m: Mascota): String {
+internal fun especieSegunSexo(m: Mascota): String {
     val hembra = m.sexo == Sexo.HEMBRA.name
     return when (m.especie) {
         Especie.PERRO.name -> if (hembra) "Perra" else "Perro"
@@ -226,6 +228,5 @@ private fun especieSegunSexo(m: Mascota): String {
         else -> "Otro"
     }
 }
-
-private fun textoSexo(sexo: String): String =
+internal fun textoSexo(sexo: String): String =
     if (sexo == Sexo.HEMBRA.name) "Hembra" else "Macho"

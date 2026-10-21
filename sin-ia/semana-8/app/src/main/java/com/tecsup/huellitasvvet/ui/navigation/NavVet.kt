@@ -53,11 +53,15 @@ import com.tecsup.huellitasvvet.ui.dueno.PedirCitaScreen
 import com.tecsup.huellitasvvet.ui.dueno.PerfilScreen
 import com.tecsup.huellitasvvet.ui.dueno.SplashScreen
 import com.tecsup.huellitasvvet.ui.veterinario.AgendaScreen
+import com.tecsup.huellitasvvet.ui.veterinario.AtenderCitaScreen
+import com.tecsup.huellitasvvet.ui.veterinario.PacientesScreen
 import com.tecsup.huellitasvvet.ui.veterinario.PanelScreen
 import com.tecsup.huellitasvvet.viewmodel.AgendaViewModel
+import com.tecsup.huellitasvvet.viewmodel.AtenderCitaViewModel
 import com.tecsup.huellitasvvet.viewmodel.InicioViewModel
 import com.tecsup.huellitasvvet.viewmodel.MascotaViewModel
 import com.tecsup.huellitasvvet.viewmodel.MisCitasViewModel
+import com.tecsup.huellitasvvet.viewmodel.PacientesViewModel
 import com.tecsup.huellitasvvet.viewmodel.PanelViewModel
 import com.tecsup.huellitasvvet.viewmodel.PedirCitaViewModel
 import com.tecsup.huellitasvvet.viewmodel.SesionViewModel
@@ -237,7 +241,33 @@ fun NavVet(sesionVm: SesionViewModel) {
         }
 
         composable(Rutas.PACIENTES) {
-            ConBarraVet(nav) { PantallaPendiente("Pacientes\n(Paso 12)") }
+            ConBarraVet(nav) {
+                val vm: PacientesViewModel = viewModel(
+                    factory = VetViewModelFactory { PacientesViewModel(app.repository) }
+                )
+                PacientesScreen(
+                    vm = vm,
+                    onAtras = { nav.irPestana(Rutas.PANEL, Rutas.PANEL) },
+                    onAbrirPaciente = { id -> nav.navigate(Rutas.fichaPaciente(id)) }
+                )
+            }
+        }
+
+        composable(
+            Rutas.FICHA_PACIENTE,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entry ->
+            val id = entry.arguments?.getInt("id") ?: 0
+            ConBarraVet(nav) {
+                val vm: MascotaViewModel = viewModel(
+                    factory = VetViewModelFactory { MascotaViewModel(app.repository, 0) }
+                )
+                FichaMascotaScreen(
+                    vm = vm,
+                    mascotaId = id,
+                    onAtras = { nav.popBackStack() }
+                )
+            }
         }
 
         composable(Rutas.SERVICIOS) {
@@ -256,8 +286,16 @@ fun NavVet(sesionVm: SesionViewModel) {
         composable(
             Rutas.ATENDER_CITA,
             arguments = listOf(navArgument("id") { type = NavType.IntType })
-        ) {
-            PantallaPendiente("Atender cita\n(Paso 12)")
+        ) { entry ->
+            val id = entry.arguments?.getInt("id") ?: 0
+            val vm: AtenderCitaViewModel = viewModel(
+                factory = VetViewModelFactory { AtenderCitaViewModel(app.repository, id) }
+            )
+            AtenderCitaScreen(
+                vm = vm,
+                onAtras = { nav.popBackStack() },
+                onTerminado = { nav.popBackStack() }
+            )
         }
     }
 }
@@ -300,7 +338,8 @@ private fun ConBarra(
                 items.forEach { item ->
                     NavigationBarItem(
                         selected = rutaActual == item.ruta ||
-                                (item.ruta == Rutas.MASCOTAS && rutaActual == Rutas.FICHA_MASCOTA),
+                                (item.ruta == Rutas.MASCOTAS && rutaActual == Rutas.FICHA_MASCOTA) ||
+                                (item.ruta == Rutas.PACIENTES && rutaActual == Rutas.FICHA_PACIENTE),
                         onClick = { nav.irPestana(item.ruta, raiz) },
                         icon = { Icon(item.icono, contentDescription = null) },
                         label = { Text(item.titulo) }

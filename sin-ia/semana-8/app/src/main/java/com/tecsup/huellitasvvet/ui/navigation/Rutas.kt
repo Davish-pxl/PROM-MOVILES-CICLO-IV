@@ -3,7 +3,6 @@ package com.tecsup.huellitasvvet.ui.navigation
 object Rutas {
     const val SPLASH = "splash"
     const val LOGIN = "login"
-
     const val INICIO = "inicio"
     const val MASCOTAS = "mascotas"
     const val MIS_CITAS = "mis_citas"
@@ -23,6 +22,8 @@ object Rutas {
     const val SERVICIOS = "servicios"
     const val AJUSTES = "ajustes"
     const val ATENDER_CITA = "atender_cita/{id}"
+    const val FICHA_PACIENTE = "ficha_paciente/{id}"
 
     fun atenderCita(id: Int) = "atender_cita/$id"
+    fun fichaPaciente(id: Int) = "ficha_paciente/$id"
 }
