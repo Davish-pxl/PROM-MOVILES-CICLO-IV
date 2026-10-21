@@ -10,10 +10,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.first
-
 
 class SesionViewModel(
     private val repo: VetRepository,
@@ -28,6 +27,12 @@ class SesionViewModel(
 
     val modoOscuro: StateFlow<Boolean> =
         prefs.modoOscuro.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val notificaciones: StateFlow<Boolean> =
+        prefs.notificaciones.stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val aceptarCitas: StateFlow<Boolean> =
+        prefs.aceptarCitas.stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     val perfilActivo: StateFlow<String?> =
         prefs.perfilActivo.stateIn(viewModelScope, SharingStarted.Eagerly, null)
@@ -50,7 +55,6 @@ class SesionViewModel(
         viewModelScope.launch {
             val usuario = repo.login(correo.trim(), clave)
             when {
-
                 usuario == null ->
                     _error.value = "Correo o contraseña incorrectos"
 
@@ -68,6 +72,7 @@ class SesionViewModel(
             }
         }
     }
+
     fun limpiarError() {
         _error.value = null
     }
@@ -75,10 +80,34 @@ class SesionViewModel(
     fun cerrarSesion() {
         _usuarioActual.value = null
         _error.value = null
-
         viewModelScope.launch {
             prefs.cerrarSesion()
         }
     }
-}
 
+    fun cambiarModoOscuro(activado: Boolean) {
+        viewModelScope.launch { prefs.guardarModoOscuro(activado) }
+    }
+
+    fun cambiarNotificaciones(activado: Boolean) {
+        viewModelScope.launch { prefs.guardarNotificaciones(activado) }
+    }
+
+    fun cambiarAceptarCitas(activado: Boolean) {
+        viewModelScope.launch { prefs.guardarAceptarCitas(activado) }
+    }
+
+    fun cambiarPerfil(onCambiado: (Rol) -> Unit) {
+        val nuevo = if (perfilActivo.value == Rol.ADMIN.name) Rol.CLIENTE else Rol.ADMIN
+        viewModelScope.launch {
+            val u = repo.obtenerUsuarioPorRol(nuevo)
+            if (u == null) {
+                _error.value = "No hay un usuario con ese perfil"
+                return@launch
+            }
+            prefs.guardarSesion(nuevo, u.id)
+            _usuarioActual.value = u
+            onCambiado(nuevo)
+        }
+    }
+}
