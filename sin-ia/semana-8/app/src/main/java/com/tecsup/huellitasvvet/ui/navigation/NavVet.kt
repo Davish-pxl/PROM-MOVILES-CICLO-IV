@@ -44,6 +44,7 @@ import com.tecsup.huellitasvvet.ui.dueno.MascotasScreen
 import com.tecsup.huellitasvvet.ui.dueno.MisCitasScreen
 import com.tecsup.huellitasvvet.ui.dueno.PedirCitaScreen
 import com.tecsup.huellitasvvet.ui.dueno.PerfilScreen
+import com.tecsup.huellitasvvet.ui.dueno.ReprogramarCitaScreen
 import com.tecsup.huellitasvvet.ui.dueno.SplashScreen
 import com.tecsup.huellitasvvet.ui.veterinario.AgendaScreen
 import com.tecsup.huellitasvvet.ui.veterinario.AjustesScreen
@@ -60,6 +61,7 @@ import com.tecsup.huellitasvvet.viewmodel.MisCitasViewModel
 import com.tecsup.huellitasvvet.viewmodel.PacientesViewModel
 import com.tecsup.huellitasvvet.viewmodel.PanelViewModel
 import com.tecsup.huellitasvvet.viewmodel.PedirCitaViewModel
+import com.tecsup.huellitasvvet.viewmodel.ReprogramarCitaViewModel
 import com.tecsup.huellitasvvet.viewmodel.ServiciosViewModel
 import com.tecsup.huellitasvvet.viewmodel.SesionViewModel
 import com.tecsup.huellitasvvet.viewmodel.VetViewModelFactory
@@ -100,6 +102,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                 nav.irLimpio(if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.INICIO)
             }
         }
+
         composable(Rutas.INICIO) {
             ConBarraDueno(nav) {
                 ConUsuario(usuario) { u ->
@@ -142,7 +145,8 @@ fun NavVet(sesionVm: SesionViewModel) {
                     MisCitasScreen(
                         vm = vm,
                         onAtras = { nav.irPestana(Rutas.INICIO, Rutas.INICIO) },
-                        onPedirCita = { nav.navigate(Rutas.pedirCita()) }
+                        onPedirCita = { nav.navigate(Rutas.pedirCita()) },
+                        onReprogramar = { id -> nav.navigate(Rutas.reprogramarCita(id)) }
                     )
                 }
             }
@@ -251,6 +255,22 @@ fun NavVet(sesionVm: SesionViewModel) {
                 )
             }
         }
+
+        composable(
+            Rutas.REPROGRAMAR_CITA,
+            arguments = listOf(navArgument("id") { type = NavType.IntType })
+        ) { entry ->
+            val id = entry.arguments?.getInt("id") ?: 0
+            val vm: ReprogramarCitaViewModel = viewModel(
+                factory = VetViewModelFactory { ReprogramarCitaViewModel(app.repository, id) }
+            )
+            ReprogramarCitaScreen(
+                vm = vm,
+                onAtras = { nav.popBackStack() },
+                onReprogramada = { nav.popBackStack() }
+            )
+        }
+
         composable(Rutas.PANEL) {
             ConBarraVet(nav) {
                 val vm: PanelViewModel = viewModel(
@@ -397,6 +417,7 @@ private fun ConBarraDueno(nav: NavHostController, contenido: @Composable () -> U
 @Composable
 private fun ConBarraVet(nav: NavHostController, contenido: @Composable () -> Unit) =
     ConBarra(nav, itemsVet, Rutas.PANEL, contenido)
+
 @Composable
 private fun ConBarra(
     nav: NavHostController,
@@ -424,6 +445,7 @@ private fun ConBarra(
         Box(Modifier.padding(padding)) { contenido() }
     }
 }
+
 @Composable
 private fun ConUsuario(usuario: Usuario?, contenido: @Composable (Usuario) -> Unit) {
     if (usuario == null) {
@@ -440,6 +462,7 @@ private fun NavHostController.irLimpio(ruta: String) {
         popUpTo(graph.id) { inclusive = true }
     }
 }
+
 private fun NavHostController.irPestana(ruta: String, raiz: String) {
     if (ruta == raiz) {
         if (!popBackStack(raiz, inclusive = false)) {

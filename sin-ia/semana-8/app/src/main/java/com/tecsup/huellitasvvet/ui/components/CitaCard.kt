@@ -33,7 +33,8 @@ import com.tecsup.huellitasvvet.ui.dueno.iconoServicio
 fun CitaCard(
     c: CitaConDetalle,
     modifier: Modifier = Modifier,
-    onCancelar: (() -> Unit)? = null
+    onCancelar: (() -> Unit)? = null,
+    onReprogramar: (() -> Unit)? = null
 ) {
     Card(
         shape = RoundedCornerShape(16.dp),
@@ -72,6 +73,20 @@ fun CitaCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     EstadoCitaChip(c.cita.estado)
                     Spacer(Modifier.weight(1f))
+                    if (onReprogramar != null) {
+                        TextButton(
+                            onClick = onReprogramar,
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp),
+                            modifier = Modifier.height(32.dp)
+                        ) {
+                            Text(
+                                "Reprogramar",
+                                style = MaterialTheme.typography.labelMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                    }
                     if (onCancelar != null) {
                         TextButton(
                             onClick = onCancelar,
