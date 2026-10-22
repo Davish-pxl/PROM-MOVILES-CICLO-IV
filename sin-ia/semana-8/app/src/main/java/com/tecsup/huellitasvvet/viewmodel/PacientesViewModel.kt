@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tecsup.huellitasvvet.data.local.relation.MascotaConDueno
 import com.tecsup.huellitasvvet.data.repository.VetRepository
 import com.tecsup.huellitasvvet.model.Especie
+import java.text.Normalizer
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -27,14 +28,20 @@ class PacientesViewModel(private val repo: VetRepository) : ViewModel() {
     private val _especie = MutableStateFlow<Especie?>(null)
     val especie: StateFlow<Especie?> = _especie.asStateFlow()
 
+    val hayFiltros: StateFlow<Boolean> =
+        combine(_texto, _especie) { texto, especie ->
+            texto.trim().isNotEmpty() || especie != null
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
     val pacientes: StateFlow<List<MascotaConDueno>> =
         combine(todas, _texto, _especie) { lista, texto, especie ->
-            val t = texto.trim()
+            val tNorm = normalizar(texto.trim())
             lista.filter { p ->
                 val coincideEspecie = especie == null || p.mascota.especie == especie.name
-                val coincideTexto = t.isEmpty() ||
-                        p.mascota.nombre.contains(t, ignoreCase = true) ||
-                        p.dueno.nombre.contains(t, ignoreCase = true)
+                val coincideTexto = tNorm.isEmpty() ||
+                        normalizar(p.mascota.nombre).contains(tNorm) ||
+                        normalizar(p.dueno.nombre).contains(tNorm) ||
+                        normalizar(p.mascota.raza).contains(tNorm)
                 coincideEspecie && coincideTexto
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -61,5 +68,15 @@ class PacientesViewModel(private val repo: VetRepository) : ViewModel() {
 
     fun filtrarEspecie(especie: Especie?) {
         _especie.value = especie
+    }
+
+    fun limpiarFiltros() {
+        _texto.value = ""
+        _especie.value = null
+    }
+
+    private fun normalizar(texto: String): String {
+        val temp = Normalizer.normalize(texto, Normalizer.Form.NFD)
+        return "\\p{InCombiningDiacriticalMarks}+".toRegex().replace(temp, "").lowercase()
     }
 }
