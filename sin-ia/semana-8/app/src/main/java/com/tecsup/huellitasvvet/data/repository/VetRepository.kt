@@ -5,9 +5,10 @@ import com.tecsup.huellitasvvet.data.local.entity.Servicio
 import com.tecsup.huellitasvvet.data.local.entity.Usuario
 import com.tecsup.huellitasvvet.data.local.relation.CitaConDetalle
 import com.tecsup.huellitasvvet.data.local.relation.MascotaConDueno
-import com.tecsup.huellitasvvet.model.Rol
 import com.tecsup.huellitasvvet.model.ConteoServicio
 import com.tecsup.huellitasvvet.model.EstadoCita
+import com.tecsup.huellitasvvet.model.PuntoPeso
+import com.tecsup.huellitasvvet.model.Rol
 import kotlinx.coroutines.flow.Flow
 
 interface VetRepository {
@@ -38,6 +39,7 @@ interface VetRepository {
     fun observarCitasPorFecha(fecha: String): Flow<List<CitaConDetalle>>
     fun observarCita(id: Int): Flow<CitaConDetalle?>
     fun observarHistorial(mascotaId: Int): Flow<List<CitaConDetalle>>
+    fun observarPesos(mascotaId: Int): Flow<List<PuntoPeso>>
     suspend fun cambiarEstadoCita(id: Int, estado: EstadoCita)
     suspend fun registrarAtencion(
         citaId: Int, diagnostico: String,

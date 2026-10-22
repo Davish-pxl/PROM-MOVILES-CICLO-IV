@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.tecsup.huellitasvvet.data.local.entity.Mascota
 import com.tecsup.huellitasvvet.data.local.relation.CitaConDetalle
 import com.tecsup.huellitasvvet.data.repository.VetRepository
+import com.tecsup.huellitasvvet.ui.components.graficos.DatoGrafico
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -45,6 +46,7 @@ class MascotaViewModel(
     private val mascotas = mutableMapOf<Int, StateFlow<Mascota?>>()
     private val historiales = mutableMapOf<Int, StateFlow<List<CitaConDetalle>>>()
     private val vacunas = mutableMapOf<Int, StateFlow<Boolean>>()
+    private val pesosMap = mutableMapOf<Int, StateFlow<List<DatoGrafico>>>()
 
     fun mascota(id: Int): StateFlow<Mascota?> = mascotas.getOrPut(id) {
         repo.observarMascota(id)
@@ -53,6 +55,16 @@ class MascotaViewModel(
 
     fun historial(mascotaId: Int): StateFlow<List<CitaConDetalle>> = historiales.getOrPut(mascotaId) {
         repo.observarHistorial(mascotaId)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }
+
+    fun pesos(mascotaId: Int): StateFlow<List<DatoGrafico>> = pesosMap.getOrPut(mascotaId) {
+        repo.observarPesos(mascotaId)
+            .map { lista ->
+                lista.map { p ->
+                    DatoGrafico(etiqueta = p.fecha, valor = p.peso.toFloat())
+                }
+            }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
     }
 
