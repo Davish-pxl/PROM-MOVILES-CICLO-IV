@@ -11,6 +11,7 @@ object Rutas {
     const val FICHA_MASCOTA = "ficha_mascota/{id}"
     const val FORM_MASCOTA = "form_mascota?id={id}"
     const val PEDIR_CITA = "pedir_cita?mascotaId={mascotaId}&servicioId={servicioId}"
+    const val REPROGRAMAR_CITA = "reprogramar_cita/{id}"
 
     fun fichaMascota(id: Int) = "ficha_mascota/$id"
     fun formMascota(id: Int? = null) =
@@ -23,6 +24,7 @@ object Rutas {
         return if (parametros.isEmpty()) "pedir_cita"
         else "pedir_cita?" + parametros.joinToString("&")
     }
+    fun reprogramarCita(id: Int) = "reprogramar_cita/$id"
 
     const val PANEL = "panel"
     const val AGENDA = "agenda"

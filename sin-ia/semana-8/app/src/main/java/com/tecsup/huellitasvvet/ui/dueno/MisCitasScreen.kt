@@ -55,7 +55,8 @@ import com.tecsup.huellitasvvet.viewmodel.MisCitasViewModel
 fun MisCitasScreen(
     vm: MisCitasViewModel,
     onAtras: () -> Unit,
-    onPedirCita: () -> Unit
+    onPedirCita: () -> Unit,
+    onReprogramar: (Int) -> Unit
 ) {
     val proximas by vm.proximas.collectAsState()
     val historial by vm.historial.collectAsState()
@@ -119,6 +120,9 @@ fun MisCitasScreen(
                     items(lista, key = { it.cita.id }) { c ->
                         CitaCard(
                             c = c,
+                            onReprogramar = if (pestana == 0 && vm.puedeCancelar(c.cita)) {
+                                { onReprogramar(c.cita.id) }
+                            } else null,
                             onCancelar = if (pestana == 0) {
                                 {
                                     if (vm.puedeCancelar(c.cita)) citaACancelar = c
