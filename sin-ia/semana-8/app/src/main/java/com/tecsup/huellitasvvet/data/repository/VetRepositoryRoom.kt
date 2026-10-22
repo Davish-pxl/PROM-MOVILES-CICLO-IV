@@ -4,13 +4,14 @@ import androidx.room.withTransaction
 import com.tecsup.huellitasvvet.data.local.VetDatabase
 import com.tecsup.huellitasvvet.data.local.entity.Cita
 import com.tecsup.huellitasvvet.data.local.entity.Mascota
-import com.tecsup.huellitasvvet.model.Rol
 import com.tecsup.huellitasvvet.data.local.entity.Servicio
 import com.tecsup.huellitasvvet.data.local.entity.Usuario
 import com.tecsup.huellitasvvet.data.local.relation.CitaConDetalle
 import com.tecsup.huellitasvvet.data.local.relation.MascotaConDueno
 import com.tecsup.huellitasvvet.model.ConteoServicio
 import com.tecsup.huellitasvvet.model.EstadoCita
+import com.tecsup.huellitasvvet.model.PuntoPeso
+import com.tecsup.huellitasvvet.model.Rol
 import kotlinx.coroutines.flow.Flow
 
 class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
@@ -102,6 +103,9 @@ class VetRepositoryRoom(private val db: VetDatabase) : VetRepository {
 
     override fun observarHistorial(mascotaId: Int): Flow<List<CitaConDetalle>> =
         citaDao.observarHistorial(mascotaId)
+
+    override fun observarPesos(mascotaId: Int): Flow<List<PuntoPeso>> =
+        citaDao.observarPesos(mascotaId)
 
     override suspend fun cambiarEstadoCita(id: Int, estado: EstadoCita) =
         citaDao.actualizarEstado(id, estado.name)

@@ -50,6 +50,8 @@ import com.tecsup.huellitasvvet.model.Sexo
 import com.tecsup.huellitasvvet.ui.components.AppTopBar
 import com.tecsup.huellitasvvet.ui.components.HistorialItem
 import com.tecsup.huellitasvvet.ui.components.MascotaAvatar
+import com.tecsup.huellitasvvet.ui.components.graficos.DatoGrafico
+import com.tecsup.huellitasvvet.ui.components.graficos.GraficoLineas
 import com.tecsup.huellitasvvet.viewmodel.MascotaViewModel
 
 @Composable
@@ -62,6 +64,7 @@ fun FichaMascotaScreen(
 ) {
     val mascota by remember(mascotaId) { vm.mascota(mascotaId) }.collectAsState()
     val historial by remember(mascotaId) { vm.historial(mascotaId) }.collectAsState()
+    val listaPesos by remember(mascotaId) { vm.pesos(mascotaId) }.collectAsState()
     val alDia by remember(mascotaId) { vm.vacunasAlDia(mascotaId) }.collectAsState()
     var pestana by rememberSaveable { mutableIntStateOf(1) }
 
@@ -163,15 +166,50 @@ fun FichaMascotaScreen(
 
                 if (pestana == 0) {
                     DatosMascota(m)
-                } else if (historial.isEmpty()) {
-                    Text(
-                        "Aún no tiene atenciones",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(vertical = 24.dp)
-                    )
                 } else {
-                    historial.forEachIndexed { i, c ->
-                        HistorialItem(c, esUltimo = i == historial.lastIndex)
+                    Card(
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 16.dp)
+                    ) {
+                        Column(Modifier.padding(16.dp)) {
+                            Text(
+                                "Evolución del peso",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            val datosGrafico = remember(listaPesos) {
+                                listaPesos.map { p ->
+                                    DatoGrafico(
+                                        etiqueta = try { fechaCorta(p.etiqueta) } catch (_: Exception) { p.etiqueta },
+                                        valor = p.valor
+                                    )
+                                }
+                            }
+                            GraficoLineas(
+                                datos = datosGrafico,
+                                color = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(140.dp)
+                            )
+                        }
+                    }
+
+                    if (historial.isEmpty()) {
+                        Text(
+                            "Aún no tiene atenciones",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 24.dp)
+                        )
+                    } else {
+                        historial.forEachIndexed { i, c ->
+                            HistorialItem(c, esUltimo = i == historial.lastIndex)
+                        }
                     }
                 }
             }
