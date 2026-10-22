@@ -230,18 +230,18 @@ Todas viven en los **ViewModels**, no en las pantallas ni en los DAOs.
 
 | Prueba | Resultado esperado | OK |
 |---|---|---|
-| Login con clave incorrecta | Mensaje de error, no entra | ☐ |
-| Dueño: registrar mascota sin nombre | Errores junto a cada campo, no se guarda | ☐ |
-| Dueño: eliminar una mascota con citas | Mensaje de aviso y no se elimina | ☐ |
-| Dueño: pedir cita | Aparece en Mis citas como PENDIENTE y con el precio del servicio | ☐ |
-| Dueño: elegir un horario ocupado | El horario aparece gris y no se puede elegir | ☐ |
-| Veterinario: agenda | La cita aparece en su hora y puede confirmarla; el dueño la ve CONFIRMADA | ☐ |
-| Veterinario: atender una cita | Pasa a ATENDIDA, el dueño la ve en el historial y el peso se actualizó | ☐ |
-| Dueño: cancelar una cita a menos de 2 horas | No se permite cancelar | ☐ |
-| Veterinario: ingresos del mes | Coinciden con la suma del precio de las citas atendidas | ☐ |
-| Veterinario: desactivar un servicio | Ya no se puede elegir al pedir una cita | ☐ |
-| Veterinario: eliminar un servicio con citas | No se elimina; se muestra un mensaje | ☐ |
-| Cerrar y abrir la app | Las citas siguen ahí y el perfil y el modo oscuro se recuerdan | ☐ |
+| Login con clave incorrecta | Mensaje de error, no entra | ✅ |
+| Dueño: registrar mascota sin nombre | Errores junto a cada campo, no se guarda | ✅ |
+| Dueño: eliminar una mascota con citas | Mensaje de aviso y no se elimina | ✅ |
+| Dueño: pedir cita | Aparece en Mis citas como PENDIENTE y con el precio del servicio | ✅ |
+| Dueño: elegir un horario ocupado | El horario aparece gris y no se puede elegir | ✅ |
+| Veterinario: agenda | La cita aparece en su hora y puede confirmarla; el dueño la ve CONFIRMADA | ✅ |
+| Veterinario: atender una cita | Pasa a ATENDIDA, el dueño la ve en el historial y el peso se actualizó | ✅ |
+| Dueño: cancelar una cita a menos de 2 horas | No se permite cancelar | ✅ |
+| Veterinario: ingresos del mes | Coinciden con la suma del precio de las citas atendidas | ✅ |
+| Veterinario: desactivar un servicio | Ya no se puede elegir al pedir una cita | ✅ |
+| Veterinario: eliminar un servicio con citas | No se elimina; se muestra un mensaje | ✅ |
+| Cerrar y abrir la app | Las citas siguen ahí y el perfil y el modo oscuro se recuerdan | ✅ |
 
 ---
 
