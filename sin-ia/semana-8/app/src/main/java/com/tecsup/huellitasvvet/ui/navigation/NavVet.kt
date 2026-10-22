@@ -111,7 +111,8 @@ fun NavVet(sesionVm: SesionViewModel) {
                         onAbrirMascota = { id -> nav.navigate(Rutas.fichaMascota(id)) },
                         onAgregarMascota = { nav.navigate(Rutas.formMascota()) },
                         onVerTodas = { nav.irPestana(Rutas.MASCOTAS, Rutas.INICIO) },
-                        onPedirCita = { nav.navigate(Rutas.pedirCita()) }
+                        onPedirCita = { nav.navigate(Rutas.pedirCita()) },
+                        onElegirServicio = { id -> nav.navigate(Rutas.pedirCita(servicioId = id)) }
                     )
                 }
             }
@@ -192,7 +193,7 @@ fun NavVet(sesionVm: SesionViewModel) {
                         mascotaId = id,
                         onAtras = { nav.popBackStack() },
                         onEditar = { nav.navigate(Rutas.formMascota(id)) },
-                        onPedirCita = { nav.navigate(Rutas.pedirCita(id)) }
+                        onPedirCita = { nav.navigate(Rutas.pedirCita(mascotaId = id)) }
                     )
                 }
             }
@@ -219,9 +220,13 @@ fun NavVet(sesionVm: SesionViewModel) {
 
         composable(
             Rutas.PEDIR_CITA,
-            arguments = listOf(navArgument("mascotaId") { type = NavType.IntType; defaultValue = 0 })
+            arguments = listOf(
+                navArgument("mascotaId") { type = NavType.IntType; defaultValue = 0 },
+                navArgument("servicioId") { type = NavType.IntType; defaultValue = 0 }
+            )
         ) { entry ->
             val mascotaId = entry.arguments?.getInt("mascotaId") ?: 0
+            val servicioId = entry.arguments?.getInt("servicioId") ?: 0
             ConUsuario(usuario) { u ->
                 val vm: PedirCitaViewModel = viewModel(
                     factory = VetViewModelFactory {
@@ -229,7 +234,8 @@ fun NavVet(sesionVm: SesionViewModel) {
                             app.repository,
                             PreferenciasStore(app),
                             u.id,
-                            mascotaId.takeIf { it > 0 }
+                            mascotaId.takeIf { it > 0 },
+                            servicioId.takeIf { it > 0 }
                         )
                     }
                 )
@@ -436,7 +442,6 @@ private fun NavHostController.irLimpio(ruta: String) {
 }
 private fun NavHostController.irPestana(ruta: String, raiz: String) {
     if (ruta == raiz) {
-        // Volver a la pantalla principal: se quita todo lo que está encima
         if (!popBackStack(raiz, inclusive = false)) {
             navigate(raiz)
         }

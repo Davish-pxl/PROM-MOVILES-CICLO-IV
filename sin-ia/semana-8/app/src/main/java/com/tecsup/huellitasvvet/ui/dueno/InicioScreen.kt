@@ -56,7 +56,8 @@ fun InicioScreen(
     onAbrirMascota: (Int) -> Unit,
     onAgregarMascota: () -> Unit,
     onVerTodas: () -> Unit,
-    onPedirCita: () -> Unit
+    onPedirCita: () -> Unit,
+    onElegirServicio: (Int) -> Unit
 ) {
     val mascotas by vm.mascotas.collectAsState()
     val proxima by vm.proximaCita.collectAsState()
@@ -101,7 +102,7 @@ fun InicioScreen(
         TituloSeccion("Servicios")
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             servicios.forEach { s ->
-                TarjetaServicio(s, onClick = onPedirCita, modifier = Modifier.weight(1f))
+                TarjetaServicio(s, onClick = { onElegirServicio(s.id) }, modifier = Modifier.weight(1f))
             }
         }
         recordatorio?.let {
