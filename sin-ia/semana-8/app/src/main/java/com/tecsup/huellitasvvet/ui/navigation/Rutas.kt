@@ -3,19 +3,27 @@ package com.tecsup.huellitasvvet.ui.navigation
 object Rutas {
     const val SPLASH = "splash"
     const val LOGIN = "login"
+
     const val INICIO = "inicio"
     const val MASCOTAS = "mascotas"
     const val MIS_CITAS = "mis_citas"
     const val PERFIL = "perfil"
     const val FICHA_MASCOTA = "ficha_mascota/{id}"
     const val FORM_MASCOTA = "form_mascota?id={id}"
-    const val PEDIR_CITA = "pedir_cita?mascotaId={mascotaId}"
+    const val PEDIR_CITA = "pedir_cita?mascotaId={mascotaId}&servicioId={servicioId}"
 
     fun fichaMascota(id: Int) = "ficha_mascota/$id"
     fun formMascota(id: Int? = null) =
         if (id == null) "form_mascota" else "form_mascota?id=$id"
-    fun pedirCita(mascotaId: Int? = null) =
-        if (mascotaId == null) "pedir_cita" else "pedir_cita?mascotaId=$mascotaId"
+    fun pedirCita(mascotaId: Int? = null, servicioId: Int? = null): String {
+        val parametros = buildList {
+            mascotaId?.let { add("mascotaId=$it") }
+            servicioId?.let { add("servicioId=$it") }
+        }
+        return if (parametros.isEmpty()) "pedir_cita"
+        else "pedir_cita?" + parametros.joinToString("&")
+    }
+
     const val PANEL = "panel"
     const val AGENDA = "agenda"
     const val PACIENTES = "pacientes"

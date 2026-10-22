@@ -25,7 +25,8 @@ class PedirCitaViewModel(
     private val repo: VetRepository,
     prefs: PreferenciasStore,
     duenoId: Int,
-    mascotaInicial: Int? = null
+    mascotaInicial: Int? = null,
+    servicioInicial: Int? = null
 ) : ViewModel() {
 
     val mascotas: StateFlow<List<Mascota>> =
@@ -44,7 +45,7 @@ class PedirCitaViewModel(
     private val _mascotaId = MutableStateFlow(mascotaInicial)
     val mascotaId: StateFlow<Int?> = _mascotaId.asStateFlow()
 
-    private val _servicioId = MutableStateFlow<Int?>(null)
+    private val _servicioId = MutableStateFlow(servicioInicial)
     val servicioId: StateFlow<Int?> = _servicioId.asStateFlow()
 
     private val _fecha = MutableStateFlow(LocalDate.now())
