@@ -20,15 +20,18 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -54,6 +57,7 @@ fun PacientesScreen(
     val pacientes by vm.pacientes.collectAsState()
     val texto by vm.texto.collectAsState()
     val especie by vm.especie.collectAsState()
+    val hayFiltros by vm.hayFiltros.collectAsState()
     val ultimas by vm.ultimaVisita.collectAsState()
 
     Scaffold(topBar = { AppTopBar("Pacientes", onAtras) }) { padding ->
@@ -65,8 +69,15 @@ fun PacientesScreen(
             OutlinedTextField(
                 value = texto,
                 onValueChange = vm::buscar,
-                placeholder = { Text("Buscar mascota o dueño...") },
+                placeholder = { Text("Buscar por mascota, dueño o raza...") },
                 leadingIcon = { Icon(Icons.Outlined.Search, contentDescription = null) },
+                trailingIcon = {
+                    if (texto.isNotEmpty()) {
+                        IconButton(onClick = { vm.buscar("") }) {
+                            Icon(Icons.Filled.Close, contentDescription = "Limpiar búsqueda")
+                        }
+                    }
+                },
                 singleLine = true,
                 shape = RoundedCornerShape(14.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -94,6 +105,14 @@ fun PacientesScreen(
                 }
             }
 
+            val cantidad = pacientes.size
+            Text(
+                text = if (cantidad == 1) "1 paciente encontrado" else "$cantidad pacientes encontrados",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp)
+            )
+
             if (pacientes.isEmpty()) {
                 Box(
                     Modifier
@@ -101,12 +120,31 @@ fun PacientesScreen(
                         .padding(vertical = 48.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No se encontraron pacientes",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (hayFiltros) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(
+                                "No hay pacientes que coincidan con la búsqueda",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            TextButton(onClick = vm::limpiarFiltros) {
+                                Text("Limpiar filtros")
+                            }
+                        }
+                    } else {
+                        Text(
+                            "No se encontraron pacientes",
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
             } else {
                 LazyColumn(
-                    contentPadding = PaddingValues(20.dp),
+                    contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 20.dp, top = 4.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     items(pacientes, key = { it.mascota.id }) { p ->
