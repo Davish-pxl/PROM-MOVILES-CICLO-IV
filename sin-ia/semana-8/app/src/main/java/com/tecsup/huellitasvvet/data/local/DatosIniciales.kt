@@ -32,7 +32,8 @@ object DatosIniciales {
             db.usuarioDao().insertarTodos(listOf(
                 Usuario(nombre = "Ana Garcia", correo = "ana@correo.test", clave = "1234", rol = Rol.CLIENTE.name),
                 Usuario(nombre = "Luis Ramos", correo = "luis@correo.test", clave = "1234", rol = Rol.CLIENTE.name),
-                Usuario(nombre = "Dra. Rojas", correo = "vet@huellitas.test", clave = "admin", rol = Rol.ADMIN.name)
+                Usuario(nombre = "Dra. Rojas", correo = "vet@huellitas.test", clave = "admin", rol = Rol.ADMIN.name),
+                Usuario(nombre = "Carlos Mendoza", correo = "admin@huellitas.test", clave = "admin123", rol = Rol.ADMINISTRADOR.name, codigoAdmin = "ADM-1234")
             ))
 
             db.mascotaDao().insertarTodos(listOf(

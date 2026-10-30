@@ -36,12 +36,14 @@ fun SplashScreen(
     perfil: String?,
     onIrLogin: () -> Unit,
     onIrInicio: () -> Unit,
-    onIrPanel: () -> Unit
+    onIrPanel: () -> Unit,
+    onIrMascotas: () -> Unit = onIrInicio
 ) {
     LaunchedEffect(perfil) {
         when (perfil) {
             Rol.CLIENTE.name -> { delay(800); onIrInicio() }
             Rol.ADMIN.name -> { delay(800); onIrPanel() }
+            Rol.ADMINISTRADOR.name -> { delay(800); onIrMascotas() }
             else -> Unit
         }
     }

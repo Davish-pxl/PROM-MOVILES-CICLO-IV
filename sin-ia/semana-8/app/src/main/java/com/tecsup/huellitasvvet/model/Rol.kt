@@ -1,2 +1,7 @@
 package com.tecsup.huellitasvvet.model
-enum class Rol { CLIENTE, ADMIN }
+
+enum class Rol {
+    CLIENTE,
+    ADMIN,
+    ADMINISTRADOR
+}

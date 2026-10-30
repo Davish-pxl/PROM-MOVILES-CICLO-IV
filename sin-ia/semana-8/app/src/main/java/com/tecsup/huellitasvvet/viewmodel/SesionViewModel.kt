@@ -47,11 +47,17 @@ class SesionViewModel(
         }
     }
 
-    fun login(correo: String, clave: String, rolSeleccionado: Rol) {
+    fun login(correo: String, clave: String, rolSeleccionado: Rol, codigoAdmin: String = "") {
         if (correo.isBlank() || clave.isBlank()) {
             _error.value = "Ingresa tu correo y contraseña"
             return
         }
+
+        if (rolSeleccionado == Rol.ADMINISTRADOR && codigoAdmin.isBlank()) {
+            _error.value = "Ingresa el código de administrador"
+            return
+        }
+
         viewModelScope.launch {
             val usuario = repo.login(correo.trim(), clave)
             when {
@@ -59,10 +65,14 @@ class SesionViewModel(
                     _error.value = "Correo o contraseña incorrectos"
 
                 usuario.rol != rolSeleccionado.name ->
-                    _error.value = if (rolSeleccionado == Rol.ADMIN)
-                        "Esta cuenta no es de veterinario"
-                    else
-                        "Esta cuenta no es de dueño"
+                    _error.value = when (rolSeleccionado) {
+                        Rol.ADMIN -> "Esta cuenta no es de veterinario"
+                        Rol.ADMINISTRADOR -> "Esta cuenta no es de administrador"
+                        else -> "Esta cuenta no es de dueño"
+                    }
+
+                rolSeleccionado == Rol.ADMINISTRADOR && usuario.codigoAdmin != codigoAdmin.trim() ->
+                    _error.value = "Código de administrador incorrecto"
 
                 else -> {
                     _error.value = null
@@ -98,7 +108,11 @@ class SesionViewModel(
     }
 
     fun cambiarPerfil(onCambiado: (Rol) -> Unit) {
-        val nuevo = if (perfilActivo.value == Rol.ADMIN.name) Rol.CLIENTE else Rol.ADMIN
+        val nuevo = when (perfilActivo.value) {
+            Rol.CLIENTE.name -> Rol.ADMIN
+            Rol.ADMIN.name -> Rol.ADMINISTRADOR
+            else -> Rol.CLIENTE
+        }
         viewModelScope.launch {
             val u = repo.obtenerUsuarioPorRol(nuevo)
             if (u == null) {

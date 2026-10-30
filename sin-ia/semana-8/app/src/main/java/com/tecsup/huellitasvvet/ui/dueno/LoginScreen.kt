@@ -15,6 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.MaterialTheme
@@ -52,6 +53,7 @@ fun LoginScreen(
     var rol by rememberSaveable { mutableStateOf(Rol.CLIENTE) }
     var correo by rememberSaveable { mutableStateOf("") }
     var clave by rememberSaveable { mutableStateOf("") }
+    var codigoAdmin by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(usuario) {
         usuario?.let { onLoginOk(Rol.valueOf(it.rol)) }
@@ -103,6 +105,17 @@ fun LoginScreen(
                     esClave = true,
                     leadingIcon = Icons.Outlined.Lock
                 )
+
+                if (rol == Rol.ADMINISTRADOR) {
+                    Spacer(Modifier.height(12.dp))
+                    VetTextField(
+                        value = codigoAdmin,
+                        onValueChange = { codigoAdmin = it; vm.limpiarError() },
+                        label = "Código Administrador",
+                        leadingIcon = Icons.Outlined.Badge
+                    )
+                }
+
                 Text(
                     "¿Olvidaste tu contraseña?",
                     style = MaterialTheme.typography.labelLarge,
@@ -123,7 +136,7 @@ fun LoginScreen(
                 }
 
                 Spacer(Modifier.height(24.dp))
-                VetButton(texto = "Ingresar", onClick = { vm.login(correo, clave, rol) })
+                VetButton(texto = "Ingresar", onClick = { vm.login(correo, clave, rol, codigoAdmin) })
                 Spacer(Modifier.height(24.dp))
 
                 if (rol == Rol.CLIENTE) {
@@ -153,7 +166,11 @@ fun LoginScreen(
 
 @Composable
 private fun SelectorRol(seleccionado: Rol, onSeleccionar: (Rol) -> Unit) {
-    val opciones = listOf(Rol.CLIENTE to "Dueño", Rol.ADMIN to "Veterinario")
+    val opciones = listOf(
+        Rol.CLIENTE to "Dueño",
+        Rol.ADMIN to "Veterinario",
+        Rol.ADMINISTRADOR to "Admin"
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -200,7 +217,7 @@ private fun TarjetaModoPractica() {
             )
             Spacer(Modifier.height(4.dp))
             Text(
-                "Puedes cambiar de perfil desde Ajustes para probar ambos roles.",
+                "Puedes cambiar de perfil desde Ajustes para probar los distintos roles.",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

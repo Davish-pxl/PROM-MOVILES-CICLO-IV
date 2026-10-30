@@ -20,9 +20,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -48,6 +54,9 @@ import com.tecsup.huellitasvvet.ui.components.MascotaAvatar
 import com.tecsup.huellitasvvet.ui.components.VetButton
 import com.tecsup.huellitasvvet.ui.components.VetTextField
 import com.tecsup.huellitasvvet.viewmodel.MascotaViewModel
+
+val razasPerro = listOf("Labrador", "Pug", "Pastor Aleman", "Golden Retriever", "Bulldog", "Mestizo", "Otro")
+val razasGato = listOf("Siamés", "Persa", "Bengalí", "Maine Coon", "Mestizo", "Otro")
 
 @Composable
 fun FormularioMascotaScreen(
@@ -113,8 +122,12 @@ fun FormularioMascotaScreen(
                             .border(2.dp, MaterialTheme.colorScheme.background, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(Icons.Filled.Add, contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(18.dp))
+                        Icon(
+                            Icons.Filled.Add,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
             }
@@ -135,7 +148,10 @@ fun FormularioMascotaScreen(
                             texto = texto,
                             seleccionado = especie == e.name,
                             relleno = true,
-                            onClick = { especie = e.name },
+                            onClick = {
+                                especie = e.name
+                                raza = ""
+                            },
                             modifier = Modifier.weight(1f)
                         )
                     }
@@ -143,8 +159,12 @@ fun FormularioMascotaScreen(
             ErrorCampo(errores.especie)
             Spacer(Modifier.height(12.dp))
 
-            VetTextField(value = raza, onValueChange = { raza = it }, label = "Raza")
-            Spacer(Modifier.height(8.dp))
+            SelectorRaza(
+                especieSeleccionada = especie,
+                razaActual = raza,
+                onRazaSeleccionada = { raza = it }
+            )
+            Spacer(Modifier.height(12.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 VetTextField(
@@ -184,7 +204,6 @@ fun FormularioMascotaScreen(
             VetButton(
                 texto = "Guardar mascota",
                 onClick = {
-                    // La pantalla solo arma la Mascota; las validaciones las hace el ViewModel
                     vm.guardar(
                         Mascota(
                             id = mascotaId,
@@ -217,15 +236,81 @@ fun FormularioMascotaScreen(
                     onClick = { existente?.let { vm.eliminar(it) } },
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Eliminar mascota", color = MaterialTheme.colorScheme.error,
-                        fontWeight = FontWeight.SemiBold)
+                    Text(
+                        "Eliminar mascota",
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
                 mensaje?.let {
-                    Text(it, color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        it,
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
             Spacer(Modifier.height(24.dp))
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SelectorRaza(
+    especieSeleccionada: String,
+    razaActual: String,
+    onRazaSeleccionada: (String) -> Unit
+) {
+    val listaRazas = when (especieSeleccionada) {
+        Especie.PERRO.name -> razasPerro
+        Especie.GATO.name -> razasGato
+        else -> emptyList()
+    }
+
+    if (listaRazas.isEmpty()) {
+        VetTextField(
+            value = razaActual,
+            onValueChange = onRazaSeleccionada,
+            label = "Raza"
+        )
+    } else {
+        var expandido by remember { mutableStateOf(false) }
+
+        ExposedDropdownMenuBox(
+            expanded = expandido,
+            onExpandedChange = { expandido = !expandido },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            OutlinedTextField(
+                value = razaActual,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Raza") },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandido)
+                },
+                colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                shape = RoundedCornerShape(14.dp),
+                modifier = Modifier
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                    .fillMaxWidth()
+            )
+
+            ExposedDropdownMenu(
+                expanded = expandido,
+                onDismissRequest = { expandido = false }
+            ) {
+                listaRazas.forEach { opcionRaza ->
+                    DropdownMenuItem(
+                        text = { Text(opcionRaza) },
+                        onClick = {
+                            onRazaSeleccionada(opcionRaza)
+                            expandido = false
+                        }
+                    )
+                }
+            }
         }
     }
 }

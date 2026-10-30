@@ -15,25 +15,28 @@ import com.tecsup.huellitasvvet.data.local.entity.Usuario
 
 @Database(
     entities = [Servicio::class, Usuario::class, Mascota::class, Cita::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
-abstract class VetDatabase : RoomDatabase(){
+abstract class VetDatabase : RoomDatabase() {
     abstract fun servicioDao(): ServicioDao
     abstract fun usuarioDao(): UsuarioDao
     abstract fun mascotaDao(): MascotaDao
     abstract fun citaDao(): CitaDao
 
     companion object {
-        @Volatile private var INSTANCE: VetDatabase? = null
-        fun obtener(context: Context): VetDatabase = INSTANCE ?: synchronized(this){
+        @Volatile
+        private var INSTANCE: VetDatabase? = null
+
+        fun obtener(context: Context): VetDatabase = INSTANCE ?: synchronized(this) {
             INSTANCE ?: Room.databaseBuilder(
                 context.applicationContext,
                 VetDatabase::class.java,
                 "huellitasvvet.db"
-            ).build().also { INSTANCE = it }
+            )
+                .fallbackToDestructiveMigration()
+                .build()
+                .also { INSTANCE = it }
         }
     }
 }
-
-

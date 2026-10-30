@@ -78,7 +78,12 @@ fun NavVet(sesionVm: SesionViewModel) {
 
     val cambiarPerfil: () -> Unit = {
         sesionVm.cambiarPerfil { rol ->
-            nav.irLimpio(if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.INICIO)
+            val destino = when (rol) {
+                Rol.ADMIN -> Rutas.PANEL
+                Rol.ADMINISTRADOR -> Rutas.MASCOTAS
+                else -> Rutas.INICIO
+            }
+            nav.irLimpio(destino)
         }
     }
     val cerrarSesion: () -> Unit = {
@@ -93,18 +98,24 @@ fun NavVet(sesionVm: SesionViewModel) {
                 perfil = perfil,
                 onIrLogin = { nav.irLimpio(Rutas.LOGIN) },
                 onIrInicio = { nav.irLimpio(Rutas.INICIO) },
-                onIrPanel = { nav.irLimpio(Rutas.PANEL) }
+                onIrPanel = { nav.irLimpio(Rutas.PANEL) },
+                onIrMascotas = { nav.irLimpio(Rutas.MASCOTAS) }
             )
         }
 
         composable(Rutas.LOGIN) {
             LoginScreen(vm = sesionVm) { rol ->
-                nav.irLimpio(if (rol == Rol.ADMIN) Rutas.PANEL else Rutas.INICIO)
+                val destino = when (rol) {
+                    Rol.ADMIN -> Rutas.PANEL
+                    Rol.ADMINISTRADOR -> Rutas.MASCOTAS
+                    else -> Rutas.INICIO
+                }
+                nav.irLimpio(destino)
             }
         }
 
         composable(Rutas.INICIO) {
-            ConBarraDueno(nav) {
+            ConBarraDueno(nav, perfil) {
                 ConUsuario(usuario) { u ->
                     val vm: InicioViewModel = viewModel(
                         factory = VetViewModelFactory { InicioViewModel(app.repository, u) }
@@ -122,7 +133,7 @@ fun NavVet(sesionVm: SesionViewModel) {
         }
 
         composable(Rutas.MASCOTAS) {
-            ConBarraDueno(nav) {
+            ConBarraDueno(nav, perfil) {
                 ConUsuario(usuario) { u ->
                     val vm: InicioViewModel = viewModel(
                         factory = VetViewModelFactory { InicioViewModel(app.repository, u) }
@@ -137,7 +148,7 @@ fun NavVet(sesionVm: SesionViewModel) {
         }
 
         composable(Rutas.MIS_CITAS) {
-            ConBarraDueno(nav) {
+            ConBarraDueno(nav, perfil) {
                 ConUsuario(usuario) { u ->
                     val vm: MisCitasViewModel = viewModel(
                         factory = VetViewModelFactory { MisCitasViewModel(app.repository, u.id) }
@@ -153,7 +164,7 @@ fun NavVet(sesionVm: SesionViewModel) {
         }
 
         composable(Rutas.PERFIL) {
-            ConBarraDueno(nav) {
+            ConBarraDueno(nav, perfil) {
                 ConUsuario(usuario) { u ->
                     val inicioVm: InicioViewModel = viewModel(
                         factory = VetViewModelFactory { InicioViewModel(app.repository, u) }
@@ -187,7 +198,7 @@ fun NavVet(sesionVm: SesionViewModel) {
             arguments = listOf(navArgument("id") { type = NavType.IntType })
         ) { entry ->
             val id = entry.arguments?.getInt("id") ?: 0
-            ConBarraDueno(nav) {
+            ConBarraDueno(nav, perfil) {
                 ConUsuario(usuario) { u ->
                     val vm: MascotaViewModel = viewModel(
                         factory = VetViewModelFactory { MascotaViewModel(app.repository, u.id) }
@@ -402,6 +413,11 @@ private val itemsDueno = listOf(
     ItemBarra(Rutas.PERFIL, "Perfil", Icons.Outlined.Person)
 )
 
+private val itemsAdmin = listOf(
+    ItemBarra(Rutas.MASCOTAS, "Mascotas", Icons.Outlined.Pets),
+    ItemBarra(Rutas.PERFIL, "Perfil", Icons.Outlined.Person)
+)
+
 private val itemsVet = listOf(
     ItemBarra(Rutas.PANEL, "Panel", Icons.Outlined.BarChart),
     ItemBarra(Rutas.AGENDA, "Agenda", Icons.Outlined.CalendarMonth),
@@ -411,8 +427,16 @@ private val itemsVet = listOf(
 )
 
 @Composable
-private fun ConBarraDueno(nav: NavHostController, contenido: @Composable () -> Unit) =
-    ConBarra(nav, itemsDueno, Rutas.INICIO, contenido)
+private fun ConBarraDueno(
+    nav: NavHostController,
+    perfil: String?,
+    contenido: @Composable () -> Unit
+) {
+    val esAdmin = perfil == Rol.ADMINISTRADOR.name
+    val items = if (esAdmin) itemsAdmin else itemsDueno
+    val raiz = if (esAdmin) Rutas.MASCOTAS else Rutas.INICIO
+    ConBarra(nav, items, raiz, contenido)
+}
 
 @Composable
 private fun ConBarraVet(nav: NavHostController, contenido: @Composable () -> Unit) =

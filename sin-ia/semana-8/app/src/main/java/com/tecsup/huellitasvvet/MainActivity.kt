@@ -33,8 +33,14 @@ class MainActivity : ComponentActivity() {
             val oscuro by sesionVm.modoOscuro.collectAsState()
             val perfil by sesionVm.perfilActivo.collectAsState()
 
+            val rolActual = when (perfil) {
+                Rol.ADMIN.name -> Rol.ADMIN
+                Rol.ADMINISTRADOR.name -> Rol.ADMINISTRADOR
+                else -> Rol.CLIENTE
+            }
+
             VetTheme(
-                rol = if (perfil == Rol.ADMIN.name) Rol.ADMIN else Rol.CLIENTE,
+                rol = rolActual,
                 oscuro = oscuro
             ) {
                 Surface(
