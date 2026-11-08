@@ -1,0 +1,17 @@
+# Gradle y builds
+.gradle/
+build/
+/app/build/
+/captures
+.externalNativeBuild
+.cxx
+
+# Android Studio
+*.iml
+.idea/
+.DS_Store
+
+# Archivos locales y secretos (NO se suben)
+local.properties
+google-services.json
+app/google-services.json
