@@ -1,6 +1,8 @@
 package com.tuapp.valcarcelcomida
 
 import android.content.Context
+import com.tuapp.valcarcelcomida.data.auth.AuthRepository
+import com.tuapp.valcarcelcomida.data.auth.FirebaseAuthRepository
 import com.tuapp.valcarcelcomida.data.local.AppDatabase
 import com.tuapp.valcarcelcomida.data.remote.ApiService
 import com.tuapp.valcarcelcomida.data.remote.RetrofitClient
@@ -16,4 +18,6 @@ class AppContainer(context: Context) {
     val itemRepository: ItemRepository by lazy {
         ItemRepositoryImpl(api, database.itemDao())
     }
+
+    val authRepository: AuthRepository by lazy { FirebaseAuthRepository() }
 }

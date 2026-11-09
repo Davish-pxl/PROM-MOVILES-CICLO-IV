@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.tuapp.valcarcelcomida.AppContainer
+import com.tuapp.valcarcelcomida.data.auth.AuthRepository
 import com.tuapp.valcarcelcomida.data.repository.ItemRepository
 import com.tuapp.valcarcelcomida.domain.model.Item
 import com.tuapp.valcarcelcomida.ui.UiState
@@ -15,7 +16,8 @@ import retrofit2.HttpException
 import java.io.IOException
 
 class ListaViewModel(
-    private val repo: ItemRepository
+    private val repo: ItemRepository,
+    private val auth: AuthRepository
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
@@ -23,6 +25,7 @@ class ListaViewModel(
 
     private val _aviso = MutableStateFlow<String?>(null)
     val aviso: StateFlow<String?> = _aviso.asStateFlow()
+
     private var refrescoTerminado = false
 
     init {
@@ -56,6 +59,8 @@ class ListaViewModel(
         viewModelScope.launch { repo.alternarFavorito(id) }
     }
 
+    fun cerrarSesion() = auth.cerrarSesion()
+
     private fun mensajeDe(e: Throwable): String = when (e) {
         is IOException -> "No hay conexión a internet"
         is HttpException -> "El servidor respondió con error ${e.code()}"
@@ -65,6 +70,6 @@ class ListaViewModel(
     class Factory(private val container: AppContainer) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            ListaViewModel(container.itemRepository) as T
+            ListaViewModel(container.itemRepository, container.authRepository) as T
     }
 }

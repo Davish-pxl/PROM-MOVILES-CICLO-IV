@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Warning
@@ -51,7 +52,8 @@ fun ListaScreen(
     onReintentar: () -> Unit,
     onItemClick: (String) -> Unit,
     onFavoritoClick: (String) -> Unit,
-    onVerFavoritos: () -> Unit
+    onVerFavoritos: () -> Unit,
+    onCerrarSesion: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -60,6 +62,9 @@ fun ListaScreen(
                 actions = {
                     IconButton(onClick = onVerFavoritos) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Ver favoritos")
+                    }
+                    IconButton(onClick = onCerrarSesion) {
+                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Cerrar sesión")
                     }
                 }
             )
@@ -168,31 +173,31 @@ private fun ListaVacia() {
 @Preview(showBackground = true, name = "Éxito")
 @Composable
 private fun PreviewExito() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Exito(itemsPreview), null, {}, {}, {}, {})
+    ListaScreen(UiState.Exito(itemsPreview), null, {}, {}, {}, {}, {})
 }
 
 @Preview(showBackground = true, name = "Sin conexión")
 @Composable
 private fun PreviewSinConexion() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Exito(itemsPreview), "Sin conexión: mostrando datos guardados", {}, {}, {}, {})
+    ListaScreen(UiState.Exito(itemsPreview), "Sin conexión: mostrando datos guardados", {}, {}, {}, {}, {})
 }
 
 @Preview(showBackground = true, name = "Cargando")
 @Composable
 private fun PreviewCargando() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Cargando, null, {}, {}, {}, {})
+    ListaScreen(UiState.Cargando, null, {}, {}, {}, {}, {})
 }
 
 @Preview(showBackground = true, name = "Error")
 @Composable
 private fun PreviewError() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Error("No hay conexión a internet"), null, {}, {}, {}, {})
+    ListaScreen(UiState.Error("No hay conexión a internet"), null, {}, {}, {}, {}, {})
 }
 
 @Preview(showBackground = true, name = "Vacío")
 @Composable
 private fun PreviewVacio() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Exito(emptyList()), null, {}, {}, {}, {})
+    ListaScreen(UiState.Exito(emptyList()), null, {}, {}, {}, {}, {})
 }
 
 
