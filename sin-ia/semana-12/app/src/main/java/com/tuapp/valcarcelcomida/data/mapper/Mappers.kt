@@ -22,8 +22,6 @@ fun ItemEntity.aModelo(): Item = Item(
     esFavorito = esFavorito
 )
 
-fun ItemDto.aModelo(esFavorito: Boolean = false): Item = aEntity(esFavorito).aModelo()
-
 fun ItemDetalleDto.aModelo(esFavorito: Boolean = false): Item = Item(
     id = idMeal,
     titulo = strMeal,
