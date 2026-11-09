@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -26,6 +27,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -65,14 +67,7 @@ fun ListaScreen(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             if (aviso != null) {
-                Text(
-                    text = aviso,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.errorContainer)
-                        .padding(8.dp)
-                )
+                AvisoSinConexion(mensaje = aviso, onReintentar = onReintentar)
             }
             when (estado) {
                 is UiState.Cargando -> Cargando()
@@ -136,6 +131,33 @@ fun ItemFila(
 }
 
 @Composable
+private fun AvisoSinConexion(mensaje: String, onReintentar: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.errorContainer)
+            .padding(start = 12.dp, end = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Warning,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onErrorContainer
+        )
+        Spacer(Modifier.width(8.dp))
+        Text(
+            text = mensaje,
+            color = MaterialTheme.colorScheme.onErrorContainer,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+        TextButton(onClick = onReintentar) {
+            Text("Reintentar")
+        }
+    }
+}
+
+@Composable
 private fun ListaVacia() {
     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text("No hay comidas para mostrar")
@@ -147,6 +169,12 @@ private fun ListaVacia() {
 @Composable
 private fun PreviewExito() = ValcarcelComidaTheme {
     ListaScreen(UiState.Exito(itemsPreview), null, {}, {}, {}, {})
+}
+
+@Preview(showBackground = true, name = "Sin conexión")
+@Composable
+private fun PreviewSinConexion() = ValcarcelComidaTheme {
+    ListaScreen(UiState.Exito(itemsPreview), "Sin conexión: mostrando datos guardados", {}, {}, {}, {})
 }
 
 @Preview(showBackground = true, name = "Cargando")
