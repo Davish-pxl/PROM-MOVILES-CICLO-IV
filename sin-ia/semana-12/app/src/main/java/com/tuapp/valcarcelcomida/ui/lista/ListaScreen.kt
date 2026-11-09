@@ -89,6 +89,7 @@ fun ListaScreen(
         }
     }
 }
+
 @Composable
 private fun ItemFila(
     item: Item,
@@ -134,7 +135,7 @@ private fun ListaVacia() {
 @Preview(showBackground = true, name = "Éxito")
 @Composable
 private fun PreviewExito() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Exito(datosPrueba), null, {}, {}, {})
+    ListaScreen(UiState.Exito(itemsPreview), null, {}, {}, {})
 }
 
 @Preview(showBackground = true, name = "Cargando")
@@ -155,9 +156,9 @@ private fun PreviewVacio() = ValcarcelComidaTheme {
     ListaScreen(UiState.Exito(emptyList()), null, {}, {}, {})
 }
 
-val datosPrueba = listOf(
-    Item(id = "1", titulo = "Pollo de prueba 1", subtitulo = "Chicken", imagenUrl = null),
-    Item(id = "2", titulo = "Pollo de prueba 2", subtitulo = "Chicken", imagenUrl = null, esFavorito = true),
-    Item(id = "3", titulo = "Pollo de prueba 3", subtitulo = "Chicken", imagenUrl = null),
-    Item(id = "4", titulo = "Pollo de prueba 4", subtitulo = "Chicken", imagenUrl = null)
+
+private val itemsPreview = listOf(
+    Item(id = "1", titulo = "Pollo de ejemplo 1", subtitulo = "Chicken", imagenUrl = null),
+    Item(id = "2", titulo = "Pollo de ejemplo 2", subtitulo = "Chicken", imagenUrl = null, esFavorito = true),
+    Item(id = "3", titulo = "Pollo de ejemplo 3", subtitulo = "Chicken", imagenUrl = null)
 )
