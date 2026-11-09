@@ -9,7 +9,7 @@ import com.tuapp.valcarcelcomida.ui.theme.ValcarcelComidaTheme
 
 class MainActivity : ComponentActivity() {
 
-    private val container by lazy { AppContainer() }
+    private val container by lazy { AppContainer(applicationContext) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
