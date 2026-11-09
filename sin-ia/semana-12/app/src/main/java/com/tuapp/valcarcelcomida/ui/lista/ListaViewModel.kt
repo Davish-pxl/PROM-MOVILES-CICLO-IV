@@ -8,6 +8,7 @@ import com.tuapp.valcarcelcomida.data.auth.AuthRepository
 import com.tuapp.valcarcelcomida.data.repository.ItemRepository
 import com.tuapp.valcarcelcomida.domain.model.Item
 import com.tuapp.valcarcelcomida.domain.model.Rol
+import com.tuapp.valcarcelcomida.notification.Notificador
 import com.tuapp.valcarcelcomida.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,8 @@ import java.io.IOException
 
 class ListaViewModel(
     private val repo: ItemRepository,
-    private val auth: AuthRepository
+    private val auth: AuthRepository,
+    private val notificador: Notificador
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
@@ -29,7 +31,6 @@ class ListaViewModel(
 
     private val _esAdmin = MutableStateFlow(false)
     val esAdmin: StateFlow<Boolean> = _esAdmin.asStateFlow()
-
     private var refrescoTerminado = false
 
     init {
@@ -51,9 +52,10 @@ class ListaViewModel(
             val resultado = repo.refrescar()
             refrescoTerminado = true
             resultado
-                .onSuccess {
+                .onSuccess { n ->
                     if (_estado.value is UiState.Cargando) _estado.value = UiState.Exito(emptyList())
                     _aviso.value = null
+                    notificador.mostrar("Datos actualizados", "Se guardaron $n elementos")
                 }
                 .onFailure { e ->
                     if (repo.cantidadGuardada() == 0) _estado.value = UiState.Error(mensajeDe(e))
@@ -73,10 +75,9 @@ class ListaViewModel(
         is HttpException -> "El servidor respondió con error ${e.code()}"
         else -> "Ocurrió un error inesperado"
     }
-
     class Factory(private val container: AppContainer) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            ListaViewModel(container.itemRepository, container.authRepository) as T
+            ListaViewModel(container.itemRepository, container.authRepository, container.notificador) as T
     }
 }

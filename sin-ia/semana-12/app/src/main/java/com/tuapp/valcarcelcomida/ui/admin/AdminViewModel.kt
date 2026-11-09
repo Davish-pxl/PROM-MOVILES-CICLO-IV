@@ -7,6 +7,7 @@ import com.tuapp.valcarcelcomida.AppContainer
 import com.tuapp.valcarcelcomida.data.auth.AuthRepository
 import com.tuapp.valcarcelcomida.data.repository.ItemRepository
 import com.tuapp.valcarcelcomida.domain.model.Rol
+import com.tuapp.valcarcelcomida.notification.Notificador
 import com.tuapp.valcarcelcomida.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +21,8 @@ data class ResumenAdmin(
 
 class AdminViewModel(
     private val repo: ItemRepository,
-    private val auth: AuthRepository
+    private val auth: AuthRepository,
+    private val notificador: Notificador
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UiState<ResumenAdmin>>(UiState.Cargando)
@@ -46,7 +48,10 @@ class AdminViewModel(
         viewModelScope.launch {
             _ocupado.value = true
             repo.refrescar()
-                .onSuccess { n -> _mensaje.value = "Se guardaron $n elementos" }
+                .onSuccess { n ->
+                    _mensaje.value = "Se guardaron $n elementos"
+                    notificador.mostrar("Datos actualizados", "Se guardaron $n elementos")
+                }
                 .onFailure { _mensaje.value = "No se pudo sincronizar: revisa tu conexión" }
             cargarTotales()
             _ocupado.value = false
@@ -75,6 +80,6 @@ class AdminViewModel(
     class Factory(private val container: AppContainer) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
-            AdminViewModel(container.itemRepository, container.authRepository) as T
+            AdminViewModel(container.itemRepository, container.authRepository, container.notificador) as T
     }
 }
