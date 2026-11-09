@@ -1,2 +1,57 @@
 package com.tuapp.valcarcelcomida.ui.navigation
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.tuapp.valcarcelcomida.AppContainer
+import com.tuapp.valcarcelcomida.ui.detalle.DetalleScreen
+import com.tuapp.valcarcelcomida.ui.detalle.DetalleViewModel
+import com.tuapp.valcarcelcomida.ui.lista.ListaScreen
+import com.tuapp.valcarcelcomida.ui.lista.ListaViewModel
+
+private const val RUTA_LISTA = "lista"
+private const val RUTA_DETALLE = "detalle/{id}"
+
+@Composable
+fun AppNav(container: AppContainer) {
+    val nav = rememberNavController()
+
+    NavHost(navController = nav, startDestination = RUTA_LISTA) {
+
+        composable(RUTA_LISTA) {
+            val vm: ListaViewModel = viewModel(factory = ListaViewModel.Factory(container))
+            val estado by vm.estado.collectAsStateWithLifecycle()
+            val aviso by vm.aviso.collectAsStateWithLifecycle()
+
+            ListaScreen(
+                estado = estado,
+                aviso = aviso,
+                onReintentar = vm::refrescar,
+                onItemClick = { id -> nav.navigate("detalle/$id") },
+                onFavoritoClick = vm::alternarFavorito
+            )
+        }
+
+        composable(
+            route = RUTA_DETALLE,
+            arguments = listOf(navArgument("id") { type = NavType.StringType })
+        ) { entrada ->
+            val id = entrada.arguments?.getString("id").orEmpty()
+            val vm: DetalleViewModel = viewModel(factory = DetalleViewModel.Factory(container, id))
+            val estado by vm.estado.collectAsStateWithLifecycle()
+
+            DetalleScreen(
+                estado = estado,
+                onVolver = { nav.popBackStack() },
+                onReintentar = vm::cargar,
+                onFavoritoClick = vm::alternarFavorito
+            )
+        }
+    }
+}
