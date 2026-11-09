@@ -48,10 +48,20 @@ fun ListaScreen(
     aviso: String?,
     onReintentar: () -> Unit,
     onItemClick: (String) -> Unit,
-    onFavoritoClick: (String) -> Unit
+    onFavoritoClick: (String) -> Unit,
+    onVerFavoritos: () -> Unit
 ) {
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Comidas · Chicken") }) }
+        topBar = {
+            TopAppBar(
+                title = { Text("Comidas · Chicken") },
+                actions = {
+                    IconButton(onClick = onVerFavoritos) {
+                        Icon(Icons.Filled.Favorite, contentDescription = "Ver favoritos")
+                    }
+                }
+            )
+        }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             if (aviso != null) {
@@ -91,7 +101,7 @@ fun ListaScreen(
 }
 
 @Composable
-private fun ItemFila(
+fun ItemFila(
     item: Item,
     onClick: () -> Unit,
     onFavoritoClick: () -> Unit
@@ -132,28 +142,29 @@ private fun ListaVacia() {
     }
 }
 
+
 @Preview(showBackground = true, name = "Éxito")
 @Composable
 private fun PreviewExito() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Exito(itemsPreview), null, {}, {}, {})
+    ListaScreen(UiState.Exito(itemsPreview), null, {}, {}, {}, {})
 }
 
 @Preview(showBackground = true, name = "Cargando")
 @Composable
 private fun PreviewCargando() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Cargando, null, {}, {}, {})
+    ListaScreen(UiState.Cargando, null, {}, {}, {}, {})
 }
 
 @Preview(showBackground = true, name = "Error")
 @Composable
 private fun PreviewError() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Error("No hay conexión a internet"), null, {}, {}, {})
+    ListaScreen(UiState.Error("No hay conexión a internet"), null, {}, {}, {}, {})
 }
 
 @Preview(showBackground = true, name = "Vacío")
 @Composable
 private fun PreviewVacio() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Exito(emptyList()), null, {}, {}, {})
+    ListaScreen(UiState.Exito(emptyList()), null, {}, {}, {}, {})
 }
 
 

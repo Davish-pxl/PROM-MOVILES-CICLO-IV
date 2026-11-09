@@ -12,11 +12,14 @@ import androidx.navigation.navArgument
 import com.tuapp.valcarcelcomida.AppContainer
 import com.tuapp.valcarcelcomida.ui.detalle.DetalleScreen
 import com.tuapp.valcarcelcomida.ui.detalle.DetalleViewModel
+import com.tuapp.valcarcelcomida.ui.favoritos.FavoritosScreen
+import com.tuapp.valcarcelcomida.ui.favoritos.FavoritosViewModel
 import com.tuapp.valcarcelcomida.ui.lista.ListaScreen
 import com.tuapp.valcarcelcomida.ui.lista.ListaViewModel
 
 private const val RUTA_LISTA = "lista"
 private const val RUTA_DETALLE = "detalle/{id}"
+private const val RUTA_FAVORITOS = "favoritos"
 
 @Composable
 fun AppNav(container: AppContainer) {
@@ -34,7 +37,8 @@ fun AppNav(container: AppContainer) {
                 aviso = aviso,
                 onReintentar = vm::refrescar,
                 onItemClick = { id -> nav.navigate("detalle/$id") },
-                onFavoritoClick = vm::alternarFavorito
+                onFavoritoClick = vm::alternarFavorito,
+                onVerFavoritos = { nav.navigate(RUTA_FAVORITOS) }
             )
         }
 
@@ -50,6 +54,18 @@ fun AppNav(container: AppContainer) {
                 estado = estado,
                 onVolver = { nav.popBackStack() },
                 onReintentar = vm::cargar,
+                onFavoritoClick = vm::alternarFavorito
+            )
+        }
+
+        composable(RUTA_FAVORITOS) {
+            val vm: FavoritosViewModel = viewModel(factory = FavoritosViewModel.Factory(container))
+            val estado by vm.estado.collectAsStateWithLifecycle()
+
+            FavoritosScreen(
+                estado = estado,
+                onVolver = { nav.popBackStack() },
+                onItemClick = { id -> nav.navigate("detalle/$id") },
                 onFavoritoClick = vm::alternarFavorito
             )
         }
