@@ -7,6 +7,7 @@ import com.tuapp.valcarcelcomida.AppContainer
 import com.tuapp.valcarcelcomida.data.auth.AuthRepository
 import com.tuapp.valcarcelcomida.data.repository.ItemRepository
 import com.tuapp.valcarcelcomida.domain.model.Item
+import com.tuapp.valcarcelcomida.domain.model.Rol
 import com.tuapp.valcarcelcomida.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -26,9 +27,15 @@ class ListaViewModel(
     private val _aviso = MutableStateFlow<String?>(null)
     val aviso: StateFlow<String?> = _aviso.asStateFlow()
 
+    private val _esAdmin = MutableStateFlow(false)
+    val esAdmin: StateFlow<Boolean> = _esAdmin.asStateFlow()
+
     private var refrescoTerminado = false
 
     init {
+        viewModelScope.launch {
+            _esAdmin.value = auth.sesionActual()?.rol == Rol.ADMIN
+        }
         viewModelScope.launch {
             repo.items.collect { lista ->
                 if (lista.isNotEmpty() || refrescoTerminado) _estado.value = UiState.Exito(lista)

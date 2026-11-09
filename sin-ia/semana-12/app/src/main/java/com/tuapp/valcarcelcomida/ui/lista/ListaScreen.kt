@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -53,13 +54,20 @@ fun ListaScreen(
     onItemClick: (String) -> Unit,
     onFavoritoClick: (String) -> Unit,
     onVerFavoritos: () -> Unit,
-    onCerrarSesion: () -> Unit
+    onCerrarSesion: () -> Unit,
+    esAdmin: Boolean = false,
+    onAbrirAdmin: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Comidas · Chicken") },
                 actions = {
+                    if (esAdmin) {
+                        IconButton(onClick = onAbrirAdmin) {
+                            Icon(Icons.Filled.Settings, contentDescription = "Panel Admin")
+                        }
+                    }
                     IconButton(onClick = onVerFavoritos) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Ver favoritos")
                     }
@@ -174,6 +182,12 @@ private fun ListaVacia() {
 @Composable
 private fun PreviewExito() = ValcarcelComidaTheme {
     ListaScreen(UiState.Exito(itemsPreview), null, {}, {}, {}, {}, {})
+}
+
+@Preview(showBackground = true, name = "Admin")
+@Composable
+private fun PreviewAdmin() = ValcarcelComidaTheme {
+    ListaScreen(UiState.Exito(itemsPreview), null, {}, {}, {}, {}, {}, esAdmin = true)
 }
 
 @Preview(showBackground = true, name = "Sin conexión")

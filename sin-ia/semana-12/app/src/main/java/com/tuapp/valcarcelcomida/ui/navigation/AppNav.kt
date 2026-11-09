@@ -12,6 +12,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tuapp.valcarcelcomida.AppContainer
 import com.tuapp.valcarcelcomida.ui.UiState
+import com.tuapp.valcarcelcomida.ui.admin.AdminScreen
+import com.tuapp.valcarcelcomida.ui.admin.AdminViewModel
 import com.tuapp.valcarcelcomida.ui.detalle.DetalleScreen
 import com.tuapp.valcarcelcomida.ui.detalle.DetalleViewModel
 import com.tuapp.valcarcelcomida.ui.favoritos.FavoritosScreen
@@ -25,6 +27,7 @@ private const val RUTA_LOGIN = "login"
 private const val RUTA_LISTA = "lista"
 private const val RUTA_DETALLE = "detalle/{id}"
 private const val RUTA_FAVORITOS = "favoritos"
+private const val RUTA_ADMIN = "admin"
 
 @Composable
 fun AppNav(container: AppContainer) {
@@ -52,6 +55,7 @@ fun AppNav(container: AppContainer) {
             val vm: ListaViewModel = viewModel(factory = ListaViewModel.Factory(container))
             val estado by vm.estado.collectAsStateWithLifecycle()
             val aviso by vm.aviso.collectAsStateWithLifecycle()
+            val esAdmin by vm.esAdmin.collectAsStateWithLifecycle()
 
             ListaScreen(
                 estado = estado,
@@ -62,10 +66,13 @@ fun AppNav(container: AppContainer) {
                 onVerFavoritos = { nav.navigate(RUTA_FAVORITOS) },
                 onCerrarSesion = {
                     vm.cerrarSesion()
+                    // Volver al login borrando toda la pila de pantallas
                     nav.navigate(RUTA_LOGIN) {
                         popUpTo(nav.graph.id) { inclusive = true }
                     }
-                }
+                },
+                esAdmin = esAdmin,
+                onAbrirAdmin = { nav.navigate(RUTA_ADMIN) }
             )
         }
 
@@ -94,6 +101,22 @@ fun AppNav(container: AppContainer) {
                 onVolver = { nav.popBackStack() },
                 onItemClick = { id -> nav.navigate("detalle/$id") },
                 onFavoritoClick = vm::alternarFavorito
+            )
+        }
+
+        composable(RUTA_ADMIN) {
+            val vm: AdminViewModel = viewModel(factory = AdminViewModel.Factory(container))
+            val estado by vm.estado.collectAsStateWithLifecycle()
+            val mensaje by vm.mensaje.collectAsStateWithLifecycle()
+            val ocupado by vm.ocupado.collectAsStateWithLifecycle()
+
+            AdminScreen(
+                estado = estado,
+                mensaje = mensaje,
+                ocupado = ocupado,
+                onVolver = { nav.popBackStack() },
+                onSincronizar = vm::sincronizar,
+                onLimpiarCache = vm::limpiarCache
             )
         }
     }
