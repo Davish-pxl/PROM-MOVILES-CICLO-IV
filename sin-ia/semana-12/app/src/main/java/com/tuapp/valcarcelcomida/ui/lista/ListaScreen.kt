@@ -38,11 +38,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -60,6 +66,8 @@ import com.tuapp.valcarcelcomida.ui.UiState
 import com.tuapp.valcarcelcomida.ui.components.Cargando
 import com.tuapp.valcarcelcomida.ui.components.ErrorView
 import com.tuapp.valcarcelcomida.ui.theme.ValcarcelComidaTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -80,8 +88,18 @@ fun ListaScreen(
     onBuscar: (String) -> Unit = {}
 ) {
     val nombreCategoria = categorias.firstOrNull { it.clave == categoriaSeleccionada }?.nombre ?: "Pollo"
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val alTocarFavorito: (String) -> Unit = { id ->
+        val item = (estado as? UiState.Exito)?.datos?.firstOrNull { it.id == id }
+        onFavoritoClick(id)
+        if (item?.esFavorito == true) {
+            scope.avisarFavoritoQuitado(snackbar, item.titulo) { onFavoritoClick(id) }
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
                 title = {
@@ -144,7 +162,7 @@ fun ListaScreen(
                         GrillaComidas(
                             items = estado.datos,
                             onItemClick = onItemClick,
-                            onFavoritoClick = onFavoritoClick
+                            onFavoritoClick = alTocarFavorito
                         )
                     }
                 }
@@ -309,6 +327,23 @@ private fun AvisoSinConexion(mensaje: String, onReintentar: () -> Unit) {
         }
     }
 }
+fun CoroutineScope.avisarFavoritoQuitado(
+    snackbar: SnackbarHostState,
+    titulo: String,
+    onDeshacer: () -> Unit
+) {
+    launch {
+        snackbar.currentSnackbarData?.dismiss()
+        val resultado = snackbar.showSnackbar(
+            message = "Quitaste «$titulo» de favoritos",
+            actionLabel = "Deshacer",
+            withDismissAction = true,
+            duration = SnackbarDuration.Short
+        )
+        if (resultado == SnackbarResult.ActionPerformed) onDeshacer()
+    }
+}
+
 @Composable
 fun MensajeVacio(emoji: String, texto: String) {
     Column(
@@ -373,6 +408,7 @@ private fun PreviewError() = ValcarcelComidaTheme {
 private fun PreviewVacio() = ValcarcelComidaTheme {
     ListaScreen(UiState.Exito(emptyList()), null, {}, {}, {}, {}, {})
 }
+
 
 private val itemsPreview = listOf(
     Item(id = "1", titulo = "Pollo de ejemplo 1", subtitulo = "Pollo", imagenUrl = null),

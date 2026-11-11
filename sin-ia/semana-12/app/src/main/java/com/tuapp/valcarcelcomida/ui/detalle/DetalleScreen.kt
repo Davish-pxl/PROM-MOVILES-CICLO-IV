@@ -27,10 +27,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -43,6 +47,7 @@ import com.tuapp.valcarcelcomida.domain.model.Item
 import com.tuapp.valcarcelcomida.ui.UiState
 import com.tuapp.valcarcelcomida.ui.components.Cargando
 import com.tuapp.valcarcelcomida.ui.components.ErrorView
+import com.tuapp.valcarcelcomida.ui.lista.avisarFavoritoQuitado
 import com.tuapp.valcarcelcomida.ui.theme.ValcarcelComidaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +58,18 @@ fun DetalleScreen(
     onReintentar: () -> Unit,
     onFavoritoClick: () -> Unit
 ) {
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val alTocarFavorito: () -> Unit = {
+        val item = (estado as? UiState.Exito)?.datos
+        onFavoritoClick()
+        if (item?.esFavorito == true) {
+            scope.avisarFavoritoQuitado(snackbar, item.titulo) { onFavoritoClick() }
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
                 title = {
@@ -67,7 +83,7 @@ fun DetalleScreen(
                 },
                 actions = {
                     if (estado is UiState.Exito) {
-                        IconButton(onClick = onFavoritoClick) {
+                        IconButton(onClick = alTocarFavorito) {
                             Icon(
                                 imageVector = if (estado.datos.esFavorito) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
                                 contentDescription = if (estado.datos.esFavorito) "Quitar de favoritos" else "Agregar a favoritos",
@@ -172,7 +188,6 @@ private fun DetalleContenido(item: Item) {
         }
     }
 }
-
 private fun pasosDe(instrucciones: String?): List<String> =
     instrucciones.orEmpty()
         .split("\r\n", "\n")

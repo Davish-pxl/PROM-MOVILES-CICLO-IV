@@ -10,9 +10,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,6 +26,7 @@ import com.tuapp.valcarcelcomida.ui.components.Cargando
 import com.tuapp.valcarcelcomida.ui.components.ErrorView
 import com.tuapp.valcarcelcomida.ui.lista.GrillaComidas
 import com.tuapp.valcarcelcomida.ui.lista.MensajeVacio
+import com.tuapp.valcarcelcomida.ui.lista.avisarFavoritoQuitado
 import com.tuapp.valcarcelcomida.ui.theme.ValcarcelComidaTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,7 +37,18 @@ fun FavoritosScreen(
     onItemClick: (String) -> Unit,
     onFavoritoClick: (String) -> Unit
 ) {
+    val snackbar = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+    val alTocarFavorito: (String) -> Unit = { id ->
+        val item = (estado as? UiState.Exito)?.datos?.firstOrNull { it.id == id }
+        onFavoritoClick(id)
+        if (item != null) {
+            scope.avisarFavoritoQuitado(snackbar, item.titulo) { onFavoritoClick(id) }
+        }
+    }
+
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbar) },
         topBar = {
             TopAppBar(
                 title = { Text("Mis favoritos", fontWeight = FontWeight.Bold) },
@@ -58,7 +74,7 @@ fun FavoritosScreen(
                         GrillaComidas(
                             items = estado.datos,
                             onItemClick = onItemClick,
-                            onFavoritoClick = onFavoritoClick
+                            onFavoritoClick = alTocarFavorito
                         )
                     }
                 }
