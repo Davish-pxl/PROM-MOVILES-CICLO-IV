@@ -17,19 +17,26 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items as itemsFila
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -40,12 +47,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.tuapp.valcarcelcomida.domain.model.Categoria
 import com.tuapp.valcarcelcomida.domain.model.Item
 import com.tuapp.valcarcelcomida.ui.UiState
 import com.tuapp.valcarcelcomida.ui.components.Cargando
@@ -63,8 +72,15 @@ fun ListaScreen(
     onVerFavoritos: () -> Unit,
     onCerrarSesion: () -> Unit,
     esAdmin: Boolean = false,
-    onAbrirAdmin: () -> Unit = {}
+    onAbrirAdmin: () -> Unit = {},
+    categorias: List<Categoria> = emptyList(),
+    categoriaSeleccionada: String = "",
+    onCategoriaClick: (String) -> Unit = {},
+    busqueda: String = "",
+    onBuscar: (String) -> Unit = {}
 ) {
+    val nombreCategoria = categorias.firstOrNull { it.clave == categoriaSeleccionada }?.nombre ?: "Pollo"
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -76,7 +92,7 @@ fun ListaScreen(
                             fontWeight = FontWeight.Bold
                         )
                         Text(
-                            "Recetas con pollo",
+                            "Categoría: $nombreCategoria",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -103,6 +119,14 @@ fun ListaScreen(
         }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
+            Buscador(texto = busqueda, onCambio = onBuscar)
+            if (categorias.isNotEmpty()) {
+                SelectorCategorias(
+                    categorias = categorias,
+                    seleccionada = categoriaSeleccionada,
+                    onClick = onCategoriaClick
+                )
+            }
             if (aviso != null) {
                 AvisoSinConexion(mensaje = aviso, onReintentar = onReintentar)
             }
@@ -111,7 +135,11 @@ fun ListaScreen(
                 is UiState.Error -> ErrorView(estado.mensaje, onReintentar)
                 is UiState.Exito -> {
                     if (estado.datos.isEmpty()) {
-                        MensajeVacio(emoji = "🍽️", texto = "No hay recetas para mostrar")
+                        if (busqueda.isNotBlank()) {
+                            MensajeVacio(emoji = "🔍", texto = "No encontramos recetas con “${busqueda.trim()}”")
+                        } else {
+                            MensajeVacio(emoji = "🍽️", texto = "No hay recetas para mostrar")
+                        }
                     } else {
                         GrillaComidas(
                             items = estado.datos,
@@ -207,6 +235,50 @@ fun ItemTarjeta(
 }
 
 @Composable
+private fun Buscador(texto: String, onCambio: (String) -> Unit) {
+    OutlinedTextField(
+        value = texto,
+        onValueChange = onCambio,
+        placeholder = { Text("Buscar receta por nombre") },
+        leadingIcon = { Icon(Icons.Filled.Search, contentDescription = null) },
+        trailingIcon = {
+            if (texto.isNotEmpty()) {
+                IconButton(onClick = { onCambio("") }) {
+                    Icon(Icons.Filled.Clear, contentDescription = "Borrar búsqueda")
+                }
+            }
+        },
+        singleLine = true,
+        shape = MaterialTheme.shapes.extraLarge,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SelectorCategorias(
+    categorias: List<Categoria>,
+    seleccionada: String,
+    onClick: (String) -> Unit
+) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        itemsFila(categorias, key = { it.clave }) { categoria ->
+            FilterChip(
+                selected = categoria.clave == seleccionada,
+                onClick = { onClick(categoria.clave) },
+                label = { Text(categoria.nombre) }
+            )
+        }
+    }
+}
+
+@Composable
 private fun AvisoSinConexion(mensaje: String, onReintentar: () -> Unit) {
     Surface(
         color = MaterialTheme.colorScheme.errorContainer,
@@ -260,6 +332,16 @@ fun MensajeVacio(emoji: String, texto: String) {
 @Composable
 private fun PreviewExito() = ValcarcelComidaTheme {
     ListaScreen(UiState.Exito(itemsPreview), null, {}, {}, {}, {}, {})
+}
+
+@Preview(showBackground = true, name = "Con categorías")
+@Composable
+private fun PreviewCategorias() = ValcarcelComidaTheme {
+    ListaScreen(
+        UiState.Exito(itemsPreview), null, {}, {}, {}, {}, {},
+        categorias = listOf(Categoria("Chicken", "Pollo"), Categoria("Beef", "Res"), Categoria("Seafood", "Mariscos")),
+        categoriaSeleccionada = "Chicken"
+    )
 }
 
 @Preview(showBackground = true, name = "Admin")

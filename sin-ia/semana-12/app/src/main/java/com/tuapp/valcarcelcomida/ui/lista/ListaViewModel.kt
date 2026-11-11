@@ -6,16 +6,21 @@ import androidx.lifecycle.viewModelScope
 import com.tuapp.valcarcelcomida.AppContainer
 import com.tuapp.valcarcelcomida.data.auth.AuthRepository
 import com.tuapp.valcarcelcomida.data.repository.ItemRepository
+import com.tuapp.valcarcelcomida.domain.model.Categoria
 import com.tuapp.valcarcelcomida.domain.model.Item
 import com.tuapp.valcarcelcomida.domain.model.Rol
 import com.tuapp.valcarcelcomida.notification.Notificador
 import com.tuapp.valcarcelcomida.ui.UiState
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
+import java.text.Normalizer
 
 class ListaViewModel(
     private val repo: ItemRepository,
@@ -31,16 +36,28 @@ class ListaViewModel(
 
     private val _esAdmin = MutableStateFlow(false)
     val esAdmin: StateFlow<Boolean> = _esAdmin.asStateFlow()
+
+    val categorias: List<Categoria> = repo.categoriasDisponibles
+    val categoriaSeleccionada: StateFlow<String> = repo.categoria
+
+    private val _busqueda = MutableStateFlow("")
+    val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
     private var refrescoTerminado = false
+
+    private var trabajoRefresco: Job? = null
 
     init {
         viewModelScope.launch {
             _esAdmin.value = auth.sesionActual()?.rol == Rol.ADMIN
         }
         viewModelScope.launch {
-            repo.items.collect { lista ->
-                if (lista.isNotEmpty() || refrescoTerminado) _estado.value = UiState.Exito(lista)
-            }
+            combine(repo.items, _busqueda) { lista, texto -> lista to texto }
+                .collect { (lista, texto) ->
+                    if (lista.isNotEmpty() || refrescoTerminado) {
+                        _estado.value = UiState.Exito(filtrar(lista, texto))
+                    }
+                }
         }
         refrescar()
     }
@@ -48,7 +65,8 @@ class ListaViewModel(
     fun refrescar() {
         if (_estado.value is UiState.Error) _estado.value = UiState.Cargando
 
-        viewModelScope.launch {
+        trabajoRefresco?.cancel()
+        trabajoRefresco = viewModelScope.launch {
             val resultado = repo.refrescar()
             refrescoTerminado = true
             resultado
@@ -58,10 +76,24 @@ class ListaViewModel(
                     notificador.mostrar("Datos actualizados", "Se guardaron $n elementos")
                 }
                 .onFailure { e ->
-                    if (repo.cantidadGuardada() == 0) _estado.value = UiState.Error(mensajeDe(e))
+                    if (repo.items.first().isEmpty()) _estado.value = UiState.Error(mensajeDe(e))
                     else _aviso.value = "Sin conexión: mostrando datos guardados"
                 }
         }
+    }
+
+    fun seleccionarCategoria(clave: String) {
+        if (clave == repo.categoria.value) return
+        refrescoTerminado = false
+        _aviso.value = null
+        _busqueda.value = ""
+        _estado.value = UiState.Cargando
+        repo.seleccionarCategoria(clave)
+        refrescar()
+    }
+
+    fun buscar(texto: String) {
+        _busqueda.value = texto
     }
 
     fun alternarFavorito(id: String) {
@@ -69,6 +101,17 @@ class ListaViewModel(
     }
 
     fun cerrarSesion() = auth.cerrarSesion()
+
+    private fun filtrar(lista: List<Item>, texto: String): List<Item> {
+        if (texto.isBlank()) return lista
+        val buscado = normalizar(texto.trim())
+        return lista.filter { normalizar(it.titulo).contains(buscado) }
+    }
+
+    private fun normalizar(texto: String): String =
+        Normalizer.normalize(texto, Normalizer.Form.NFD)
+            .replace(Regex("\\p{Mn}+"), "")
+            .lowercase()
 
     private fun mensajeDe(e: Throwable): String = when (e) {
         is IOException -> "No hay conexión a internet"

@@ -2,6 +2,7 @@ package com.tuapp.valcarcelcomida.ui.lista
 
 import com.tuapp.valcarcelcomida.data.auth.AuthRepository
 import com.tuapp.valcarcelcomida.data.repository.ItemRepository
+import com.tuapp.valcarcelcomida.domain.model.Categoria
 import com.tuapp.valcarcelcomida.domain.model.Item
 import com.tuapp.valcarcelcomida.domain.model.Rol
 import com.tuapp.valcarcelcomida.domain.model.Sesion
@@ -11,6 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -23,6 +25,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 import java.io.IOException
+
 
 private class FakeItemRepository(
     guardados: List<Item> = emptyList(),
@@ -51,6 +54,11 @@ private class FakeItemRepository(
     override suspend fun cantidadGuardada(): Int = datos.value.size
     override suspend fun cantidadFavoritos(): Int = datos.value.count { it.esFavorito }
     override suspend fun limpiarCache() { datos.value = emptyList() }
+
+    override val categoriasDisponibles = listOf(Categoria("Chicken", "Pollo"), Categoria("Beef", "Res"))
+    private val _categoria = MutableStateFlow("Chicken")
+    override val categoria: StateFlow<String> = _categoria
+    override fun seleccionarCategoria(clave: String) { _categoria.value = clave }
 }
 
 private class FakeAuthRepository(private val rol: Rol = Rol.USUARIO) : AuthRepository {
@@ -151,6 +159,32 @@ class ListaViewModelTest {
 
         val estado = vm.estado.value as UiState.Exito
         assertTrue(estado.datos.first().esFavorito)
+    }
+
+    @Test
+    fun `buscar filtra por nombre sin importar mayusculas ni tildes`() = runTest {
+        val limon = Item(id = "3", titulo = "Pollo al limón", subtitulo = "Pollo", imagenUrl = null)
+        val repo = FakeItemRepository(
+            resultadoRefrescar = Result.success(3),
+            traidosDeLaApi = listOf(pollo1, pollo2, limon)
+        )
+        val vm = ListaViewModel(repo, FakeAuthRepository(), FakeNotificador())
+
+        vm.buscar("LIMON")
+
+        assertEquals(UiState.Exito(listOf(limon)), vm.estado.value)
+    }
+
+    @Test
+    fun `cambiar de categoria la avisa al repositorio y limpia la busqueda`() = runTest {
+        val repo = FakeItemRepository(resultadoRefrescar = Result.success(0))
+        val vm = ListaViewModel(repo, FakeAuthRepository(), FakeNotificador())
+        vm.buscar("algo")
+
+        vm.seleccionarCategoria("Beef")
+
+        assertEquals("Beef", repo.categoria.value)
+        assertEquals("", vm.busqueda.value)
     }
 
     @Test

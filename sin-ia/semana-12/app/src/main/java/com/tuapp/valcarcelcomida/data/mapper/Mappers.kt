@@ -6,12 +6,17 @@ import com.tuapp.valcarcelcomida.data.remote.dto.ItemDetalleDto
 import com.tuapp.valcarcelcomida.data.remote.dto.ItemDto
 import com.tuapp.valcarcelcomida.domain.model.Item
 
-fun ItemDto.aEntity(esFavorito: Boolean = false, titulo: String = strMeal): ItemEntity = ItemEntity(
+fun ItemDto.aEntity(
+    esFavorito: Boolean = false,
+    titulo: String = strMeal,
+    categoria: String = ApiService.CATEGORIA
+): ItemEntity = ItemEntity(
     id = idMeal,
     titulo = titulo,
-    subtitulo = categoriaEnEspanol(ApiService.CATEGORIA),
+    subtitulo = categoriaEnEspanol(categoria),
     imagenUrl = strMealThumb,
-    esFavorito = esFavorito
+    esFavorito = esFavorito,
+    categoria = categoria
 )
 
 fun ItemEntity.aModelo(): Item = Item(
