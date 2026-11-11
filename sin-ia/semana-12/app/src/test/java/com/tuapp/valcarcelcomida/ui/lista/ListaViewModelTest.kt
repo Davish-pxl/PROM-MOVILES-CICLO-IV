@@ -26,7 +26,6 @@ import org.junit.Before
 import org.junit.Test
 import java.io.IOException
 
-
 private class FakeItemRepository(
     guardados: List<Item> = emptyList(),
     private val resultadoRefrescar: Result<Int>,
@@ -55,6 +54,7 @@ private class FakeItemRepository(
     override suspend fun cantidadFavoritos(): Int = datos.value.count { it.esFavorito }
     override suspend fun limpiarCache() { datos.value = emptyList() }
 
+    // Fase 2: categorías (el falso solo guarda cuál se eligió)
     override val categoriasDisponibles = listOf(Categoria("Chicken", "Pollo"), Categoria("Beef", "Res"))
     private val _categoria = MutableStateFlow("Chicken")
     override val categoria: StateFlow<String> = _categoria
@@ -118,7 +118,9 @@ class ListaViewModelTest {
 
         val vm = ListaViewModel(repo, FakeAuthRepository(), notificador)
 
-        assertEquals(UiState.Error("No hay conexión a internet"), vm.estado.value)
+        val estado = vm.estado.value
+        assertTrue("Debe mostrar Error", estado is UiState.Error)
+        assertEquals("Sin conexión", (estado as UiState.Error).titulo)
         assertTrue("No debe notificar si falló", notificador.mostradas.isEmpty())
     }
 

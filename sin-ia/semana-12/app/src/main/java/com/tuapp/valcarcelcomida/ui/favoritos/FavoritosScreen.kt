@@ -63,7 +63,12 @@ fun FavoritosScreen(
         Column(Modifier.fillMaxSize().padding(padding)) {
             when (estado) {
                 is UiState.Cargando -> Cargando()
-                is UiState.Error -> ErrorView(estado.mensaje, onReintentar = onVolver)
+                is UiState.Error -> ErrorView(
+                    error = estado,
+                    onReintentar = onVolver,
+                    onCerrar = onVolver,
+                    textoCerrar = "Volver"
+                )
                 is UiState.Exito -> {
                     if (estado.datos.isEmpty()) {
                         MensajeVacio(

@@ -99,7 +99,12 @@ fun DetalleScreen(
         Column(Modifier.fillMaxSize().padding(padding)) {
             when (estado) {
                 is UiState.Cargando -> Cargando(mensaje = "Preparando la receta…")
-                is UiState.Error -> ErrorView(estado.mensaje, onReintentar)
+                is UiState.Error -> ErrorView(
+                    error = estado,
+                    onReintentar = onReintentar,
+                    onCerrar = onVolver,
+                    textoCerrar = "Volver"
+                )
                 is UiState.Exito -> DetalleContenido(estado.datos)
             }
         }
@@ -217,6 +222,7 @@ private fun TituloSeccion(titulo: String, detalle: String) {
         )
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

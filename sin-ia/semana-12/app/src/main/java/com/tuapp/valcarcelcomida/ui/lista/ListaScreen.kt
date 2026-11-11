@@ -63,6 +63,7 @@ import coil.compose.AsyncImage
 import com.tuapp.valcarcelcomida.domain.model.Categoria
 import com.tuapp.valcarcelcomida.domain.model.Item
 import com.tuapp.valcarcelcomida.ui.UiState
+import com.tuapp.valcarcelcomida.ui.errorDe
 import com.tuapp.valcarcelcomida.ui.components.Cargando
 import com.tuapp.valcarcelcomida.ui.components.ErrorView
 import com.tuapp.valcarcelcomida.ui.theme.ValcarcelComidaTheme
@@ -88,6 +89,7 @@ fun ListaScreen(
     onBuscar: (String) -> Unit = {}
 ) {
     val nombreCategoria = categorias.firstOrNull { it.clave == categoriaSeleccionada }?.nombre ?: "Pollo"
+
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val alTocarFavorito: (String) -> Unit = { id ->
@@ -150,7 +152,7 @@ fun ListaScreen(
             }
             when (estado) {
                 is UiState.Cargando -> Cargando(mensaje = "Buscando recetas…")
-                is UiState.Error -> ErrorView(estado.mensaje, onReintentar)
+                is UiState.Error -> ErrorView(error = estado, onReintentar = onReintentar)
                 is UiState.Exito -> {
                     if (estado.datos.isEmpty()) {
                         if (busqueda.isNotBlank()) {
@@ -216,6 +218,7 @@ fun ItemTarjeta(
                     .aspectRatio(1f)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             )
+            // Botón de favorito flotando sobre la foto
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
@@ -362,7 +365,6 @@ fun MensajeVacio(emoji: String, texto: String) {
     }
 }
 
-
 @Preview(showBackground = true, name = "Éxito")
 @Composable
 private fun PreviewExito() = ValcarcelComidaTheme {
@@ -400,7 +402,7 @@ private fun PreviewCargando() = ValcarcelComidaTheme {
 @Preview(showBackground = true, name = "Error")
 @Composable
 private fun PreviewError() = ValcarcelComidaTheme {
-    ListaScreen(UiState.Error("No hay conexión a internet"), null, {}, {}, {}, {}, {})
+    ListaScreen(errorDe(java.io.IOException()), null, {}, {}, {}, {}, {})
 }
 
 @Preview(showBackground = true, name = "Vacío")
@@ -408,7 +410,6 @@ private fun PreviewError() = ValcarcelComidaTheme {
 private fun PreviewVacio() = ValcarcelComidaTheme {
     ListaScreen(UiState.Exito(emptyList()), null, {}, {}, {}, {}, {})
 }
-
 
 private val itemsPreview = listOf(
     Item(id = "1", titulo = "Pollo de ejemplo 1", subtitulo = "Pollo", imagenUrl = null),

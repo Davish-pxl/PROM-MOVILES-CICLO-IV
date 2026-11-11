@@ -11,6 +11,7 @@ import com.tuapp.valcarcelcomida.domain.model.Item
 import com.tuapp.valcarcelcomida.domain.model.Rol
 import com.tuapp.valcarcelcomida.notification.Notificador
 import com.tuapp.valcarcelcomida.ui.UiState
+import com.tuapp.valcarcelcomida.ui.errorDe
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +19,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 import java.text.Normalizer
 
 class ListaViewModel(
@@ -29,6 +28,7 @@ class ListaViewModel(
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UiState<List<Item>>>(UiState.Cargando)
+
     val estado: StateFlow<UiState<List<Item>>> = _estado.asStateFlow()
 
     private val _aviso = MutableStateFlow<String?>(null)
@@ -76,7 +76,7 @@ class ListaViewModel(
                     notificador.mostrar("Datos actualizados", "Se guardaron $n elementos")
                 }
                 .onFailure { e ->
-                    if (repo.items.first().isEmpty()) _estado.value = UiState.Error(mensajeDe(e))
+                    if (repo.items.first().isEmpty()) _estado.value = errorDe(e)
                     else _aviso.value = "Sin conexión: mostrando datos guardados"
                 }
         }
@@ -113,11 +113,6 @@ class ListaViewModel(
             .replace(Regex("\\p{Mn}+"), "")
             .lowercase()
 
-    private fun mensajeDe(e: Throwable): String = when (e) {
-        is IOException -> "No hay conexión a internet"
-        is HttpException -> "El servidor respondió con error ${e.code()}"
-        else -> "Ocurrió un error inesperado"
-    }
     class Factory(private val container: AppContainer) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T =
