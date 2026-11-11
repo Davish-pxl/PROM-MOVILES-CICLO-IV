@@ -72,7 +72,7 @@ fun FavoritosScreen(
 private fun PreviewFavoritos() = ValcarcelComidaTheme {
     FavoritosScreen(
         estado = UiState.Exito(
-            listOf(Item(id = "1", titulo = "Pollo de ejemplo", subtitulo = "Chicken", imagenUrl = null, esFavorito = true))
+            listOf(Item(id = "1", titulo = "Pollo de ejemplo", subtitulo = "Pollo", imagenUrl = null, esFavorito = true))
         ),
         onVolver = {}, onItemClick = {}, onFavoritoClick = {}
     )

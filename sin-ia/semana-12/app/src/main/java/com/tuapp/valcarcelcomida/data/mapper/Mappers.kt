@@ -6,10 +6,10 @@ import com.tuapp.valcarcelcomida.data.remote.dto.ItemDetalleDto
 import com.tuapp.valcarcelcomida.data.remote.dto.ItemDto
 import com.tuapp.valcarcelcomida.domain.model.Item
 
-fun ItemDto.aEntity(esFavorito: Boolean = false): ItemEntity = ItemEntity(
+fun ItemDto.aEntity(esFavorito: Boolean = false, titulo: String = strMeal): ItemEntity = ItemEntity(
     id = idMeal,
-    titulo = strMeal,
-    subtitulo = ApiService.CATEGORIA,
+    titulo = titulo,
+    subtitulo = categoriaEnEspanol(ApiService.CATEGORIA),
     imagenUrl = strMealThumb,
     esFavorito = esFavorito
 )
@@ -25,10 +25,10 @@ fun ItemEntity.aModelo(): Item = Item(
 fun ItemDetalleDto.aModelo(esFavorito: Boolean = false): Item = Item(
     id = idMeal,
     titulo = strMeal,
-    subtitulo = strCategory ?: ApiService.CATEGORIA,
+    subtitulo = categoriaEnEspanol(strCategory ?: ApiService.CATEGORIA),
     imagenUrl = strMealThumb,
     esFavorito = esFavorito,
-    area = strArea,
+    area = strArea?.let { areaEnEspanol(it) },
     instrucciones = strInstructions,
     ingredientes = ingredientes()
 )
@@ -39,3 +39,54 @@ private fun ItemDetalleDto.ingredientes(): List<String> = listOf(
     strIngredient11, strIngredient12, strIngredient13, strIngredient14, strIngredient15,
     strIngredient16, strIngredient17, strIngredient18, strIngredient19, strIngredient20
 ).mapNotNull { it?.trim()?.takeIf { texto -> texto.isNotEmpty() } }
+
+fun categoriaEnEspanol(categoria: String): String = when (categoria) {
+    "Chicken" -> "Pollo"
+    "Beef" -> "Res"
+    "Pork" -> "Cerdo"
+    "Lamb" -> "Cordero"
+    "Goat" -> "Cabra"
+    "Seafood" -> "Mariscos"
+    "Pasta" -> "Pasta"
+    "Vegetarian" -> "Vegetariana"
+    "Vegan" -> "Vegana"
+    "Dessert" -> "Postres"
+    "Breakfast" -> "Desayuno"
+    "Side" -> "Acompañamiento"
+    "Starter" -> "Entrada"
+    "Miscellaneous" -> "Varios"
+    else -> categoria
+}
+
+private fun areaEnEspanol(area: String): String = when (area) {
+    "American" -> "Estadounidense"
+    "British" -> "Británica"
+    "Canadian" -> "Canadiense"
+    "Chinese" -> "China"
+    "Croatian" -> "Croata"
+    "Dutch" -> "Neerlandesa"
+    "Egyptian" -> "Egipcia"
+    "Filipino" -> "Filipina"
+    "French" -> "Francesa"
+    "Greek" -> "Griega"
+    "Indian" -> "India"
+    "Irish" -> "Irlandesa"
+    "Italian" -> "Italiana"
+    "Jamaican" -> "Jamaiquina"
+    "Japanese" -> "Japonesa"
+    "Kenyan" -> "Keniana"
+    "Malaysian" -> "Malaya"
+    "Mexican" -> "Mexicana"
+    "Moroccan" -> "Marroquí"
+    "Polish" -> "Polaca"
+    "Portuguese" -> "Portuguesa"
+    "Russian" -> "Rusa"
+    "Spanish" -> "Española"
+    "Thai" -> "Tailandesa"
+    "Tunisian" -> "Tunecina"
+    "Turkish" -> "Turca"
+    "Ukrainian" -> "Ucraniana"
+    "Vietnamese" -> "Vietnamita"
+    "Unknown" -> "Internacional"
+    else -> area
+}

@@ -103,7 +103,6 @@ fun ListaScreen(
         }
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-
             if (aviso != null) {
                 AvisoSinConexion(mensaje = aviso, onReintentar = onReintentar)
             }
@@ -294,7 +293,7 @@ private fun PreviewVacio() = ValcarcelComidaTheme {
 }
 
 private val itemsPreview = listOf(
-    Item(id = "1", titulo = "Pollo de ejemplo 1", subtitulo = "Chicken", imagenUrl = null),
-    Item(id = "2", titulo = "Pollo de ejemplo 2", subtitulo = "Chicken", imagenUrl = null, esFavorito = true),
-    Item(id = "3", titulo = "Pollo de ejemplo 3", subtitulo = "Chicken", imagenUrl = null)
+    Item(id = "1", titulo = "Pollo de ejemplo 1", subtitulo = "Pollo", imagenUrl = null),
+    Item(id = "2", titulo = "Pollo de ejemplo 2", subtitulo = "Pollo", imagenUrl = null, esFavorito = true),
+    Item(id = "3", titulo = "Pollo de ejemplo 3", subtitulo = "Pollo", imagenUrl = null)
 )
