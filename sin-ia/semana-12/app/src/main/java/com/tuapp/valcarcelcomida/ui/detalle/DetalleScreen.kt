@@ -1,6 +1,8 @@
 package com.tuapp.valcarcelcomida.ui.detalle
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,26 +11,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -51,7 +57,7 @@ fun DetalleScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    val titulo = (estado as? UiState.Exito)?.datos?.titulo ?: "Detalle"
+                    val titulo = (estado as? UiState.Exito)?.datos?.titulo ?: "Receta"
                     Text(titulo, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 navigationIcon = {
@@ -64,7 +70,9 @@ fun DetalleScreen(
                         IconButton(onClick = onFavoritoClick) {
                             Icon(
                                 imageVector = if (estado.datos.esFavorito) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                                contentDescription = if (estado.datos.esFavorito) "Quitar de favoritos" else "Agregar a favoritos"
+                                contentDescription = if (estado.datos.esFavorito) "Quitar de favoritos" else "Agregar a favoritos",
+                                tint = if (estado.datos.esFavorito) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -74,7 +82,7 @@ fun DetalleScreen(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             when (estado) {
-                is UiState.Cargando -> Cargando()
+                is UiState.Cargando -> Cargando(mensaje = "Preparando la receta…")
                 is UiState.Error -> ErrorView(estado.mensaje, onReintentar)
                 is UiState.Exito -> DetalleContenido(estado.datos)
             }
@@ -88,7 +96,6 @@ private fun DetalleContenido(item: Item) {
         Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(16.dp)
     ) {
         AsyncImage(
             model = item.imagenUrl,
@@ -96,37 +103,103 @@ private fun DetalleContenido(item: Item) {
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
-                .clip(RoundedCornerShape(12.dp))
+                .aspectRatio(4f / 3f)
                 .background(MaterialTheme.colorScheme.surfaceVariant)
         )
-        Spacer(Modifier.height(16.dp))
 
-        Text(item.titulo, style = MaterialTheme.typography.headlineSmall)
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            val datos = listOfNotNull(item.subtitulo, item.area).joinToString(" · ")
-            Text(datos, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
-        }
+        Column(Modifier.padding(20.dp)) {
+            Text(
+                item.titulo,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(12.dp))
 
-        if (item.ingredientes.isNotEmpty()) {
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(16.dp))
-            Text("Ingredientes", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(8.dp))
-            item.ingredientes.forEach { ingrediente ->
-                Text("• $ingrediente", style = MaterialTheme.typography.bodyMedium)
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Etiqueta(item.subtitulo, MaterialTheme.colorScheme.primaryContainer)
+                item.area?.let { Etiqueta(it, MaterialTheme.colorScheme.tertiaryContainer) }
+            }
+
+            if (item.ingredientes.isNotEmpty()) {
+                Spacer(Modifier.height(24.dp))
+                TituloSeccion("Ingredientes", "${item.ingredientes.size}")
+                Spacer(Modifier.height(8.dp))
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        item.ingredientes.forEach { ingrediente ->
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Box(
+                                    Modifier
+                                        .size(6.dp)
+                                        .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                )
+                                Spacer(Modifier.width(12.dp))
+                                Text(ingrediente, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+                }
+            }
+
+            val pasos = pasosDe(item.instrucciones)
+            if (pasos.isNotEmpty()) {
+                Spacer(Modifier.height(24.dp))
+                TituloSeccion("Preparación", "${pasos.size} pasos")
+                Spacer(Modifier.height(8.dp))
+                pasos.forEachIndexed { indice, paso ->
+                    Row(Modifier.padding(vertical = 6.dp)) {
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(28.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text(
+                                    "${indice + 1}",
+                                    style = MaterialTheme.typography.labelLarge,
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            }
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Text(paso, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.weight(1f))
+                    }
+                }
             }
         }
+    }
+}
 
-        if (!item.instrucciones.isNullOrBlank()) {
-            Spacer(Modifier.height(16.dp))
-            HorizontalDivider()
-            Spacer(Modifier.height(16.dp))
-            Text("Preparación", style = MaterialTheme.typography.titleMedium)
-            Spacer(Modifier.height(8.dp))
-            Text(item.instrucciones, style = MaterialTheme.typography.bodyMedium)
-        }
+private fun pasosDe(instrucciones: String?): List<String> =
+    instrucciones.orEmpty()
+        .split("\r\n", "\n")
+        .map { it.trim() }
+        .filter { it.isNotEmpty() && !it.matches(Regex("(?i)^(step|paso)\\s*\\d+[.:]?$")) }
+
+@Composable
+private fun Etiqueta(texto: String, fondo: androidx.compose.ui.graphics.Color) {
+    Surface(shape = CircleShape, color = fondo) {
+        Text(
+            texto,
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+        )
+    }
+}
+
+@Composable
+private fun TituloSeccion(titulo: String, detalle: String) {
+    Row(verticalAlignment = Alignment.Bottom) {
+        Text(titulo, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
+        Spacer(Modifier.width(8.dp))
+        Text(
+            detalle,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
 
@@ -138,10 +211,10 @@ private fun PreviewDetalle() = ValcarcelComidaTheme {
             Item(
                 id = "1",
                 titulo = "Pollo de ejemplo",
-                subtitulo = "Chicken",
+                subtitulo = "Pollo",
                 imagenUrl = null,
-                area = "Peruvian",
-                instrucciones = "Paso 1. Sazonar el pollo.\nPaso 2. Hornear 40 minutos.",
+                area = "Peruana",
+                instrucciones = "Sazonar el pollo.\nHornear 40 minutos.\nServir caliente.",
                 ingredientes = listOf("Pollo", "Ajo", "Limón")
             )
         ),

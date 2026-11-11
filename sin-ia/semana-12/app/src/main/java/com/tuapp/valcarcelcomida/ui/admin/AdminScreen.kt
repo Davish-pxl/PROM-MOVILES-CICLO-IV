@@ -15,6 +15,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +34,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -53,7 +56,7 @@ fun AdminScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Panel Admin") },
+                title = { Text("Panel Admin", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onVolver) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver")
@@ -90,8 +93,10 @@ private fun PanelContenido(
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Total("Guardados", resumen.totalGuardado, Modifier.weight(1f))
-            Total("Favoritos", resumen.totalFavoritos, Modifier.weight(1f))
+            Total("🍽️", "Recetas guardadas", resumen.totalGuardado,
+                MaterialTheme.colorScheme.primaryContainer, Modifier.weight(1f))
+            Total("💛", "Favoritos", resumen.totalFavoritos,
+                MaterialTheme.colorScheme.tertiaryContainer, Modifier.weight(1f))
         }
 
         Spacer(Modifier.height(24.dp))
@@ -144,10 +149,11 @@ private fun PanelContenido(
 }
 
 @Composable
-private fun Total(titulo: String, valor: Int, modifier: Modifier = Modifier) {
-    Card(modifier) {
-        Column(Modifier.fillMaxWidth().padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(valor.toString(), style = MaterialTheme.typography.displaySmall)
+private fun Total(emoji: String, titulo: String, valor: Int, fondo: Color, modifier: Modifier = Modifier) {
+    Card(modifier, colors = CardDefaults.cardColors(containerColor = fondo)) {
+        Column(Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(emoji, style = MaterialTheme.typography.headlineSmall)
+            Text(valor.toString(), style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
             Text(titulo, style = MaterialTheme.typography.bodyMedium)
         }
     }
@@ -165,7 +171,6 @@ private fun SinPermiso(mensaje: String, onVolver: () -> Unit) {
         Button(onClick = onVolver) { Text("Volver") }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
