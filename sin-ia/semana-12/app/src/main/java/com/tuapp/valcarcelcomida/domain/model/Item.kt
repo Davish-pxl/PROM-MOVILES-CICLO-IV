@@ -10,3 +10,7 @@ data class Item(
     val instrucciones: String? = null,
     val ingredientes: List<String> = emptyList()
 )
+data class Categoria(
+    val clave: String,
+    val nombre: String
+)
