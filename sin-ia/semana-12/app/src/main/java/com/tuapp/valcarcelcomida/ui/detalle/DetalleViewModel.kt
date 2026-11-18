@@ -7,12 +7,11 @@ import com.tuapp.valcarcelcomida.AppContainer
 import com.tuapp.valcarcelcomida.data.repository.ItemRepository
 import com.tuapp.valcarcelcomida.domain.model.Item
 import com.tuapp.valcarcelcomida.ui.UiState
+import com.tuapp.valcarcelcomida.ui.errorDe
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
-import java.io.IOException
 
 class DetalleViewModel(
     private val repo: ItemRepository,
@@ -31,7 +30,7 @@ class DetalleViewModel(
         viewModelScope.launch {
             repo.obtenerDetalle(id)
                 .onSuccess { item -> _estado.value = UiState.Exito(item) }
-                .onFailure { e -> _estado.value = UiState.Error(mensajeDe(e)) }
+                .onFailure { e -> _estado.value = errorDe(e) }
         }
     }
 
@@ -43,13 +42,6 @@ class DetalleViewModel(
                 _estado.value = UiState.Exito(actual.datos.copy(esFavorito = !actual.datos.esFavorito))
             }
         }
-    }
-
-    private fun mensajeDe(e: Throwable): String = when (e) {
-        is IOException -> "No hay conexión a internet"
-        is HttpException -> "El servidor respondió con error ${e.code()}"
-        is NoSuchElementException -> "No se encontró la comida"
-        else -> "Ocurrió un error inesperado"
     }
 
     class Factory(

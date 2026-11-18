@@ -11,6 +11,9 @@ interface ItemDao {
     @Query("SELECT * FROM items ORDER BY titulo")
     fun todos(): Flow<List<ItemEntity>>
 
+    @Query("SELECT * FROM items WHERE categoria = :categoria ORDER BY titulo")
+    fun porCategoria(categoria: String): Flow<List<ItemEntity>>
+
     @Query("SELECT * FROM items WHERE esFavorito = 1 ORDER BY titulo")
     fun favoritos(): Flow<List<ItemEntity>>
 

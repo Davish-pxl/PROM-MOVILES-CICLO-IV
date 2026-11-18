@@ -1,4 +1,4 @@
-package com.tuapp.valcarcelcomida
+package com.valcarcel.campusgps
 
 import org.junit.Test
 

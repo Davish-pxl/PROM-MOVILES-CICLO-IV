@@ -56,6 +56,8 @@ fun AppNav(container: AppContainer) {
             val estado by vm.estado.collectAsStateWithLifecycle()
             val aviso by vm.aviso.collectAsStateWithLifecycle()
             val esAdmin by vm.esAdmin.collectAsStateWithLifecycle()
+            val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsStateWithLifecycle()
+            val busqueda by vm.busqueda.collectAsStateWithLifecycle()
 
             ListaScreen(
                 estado = estado,
@@ -66,13 +68,17 @@ fun AppNav(container: AppContainer) {
                 onVerFavoritos = { nav.navigate(RUTA_FAVORITOS) },
                 onCerrarSesion = {
                     vm.cerrarSesion()
-                    // Volver al login borrando toda la pila de pantallas
                     nav.navigate(RUTA_LOGIN) {
                         popUpTo(nav.graph.id) { inclusive = true }
                     }
                 },
                 esAdmin = esAdmin,
-                onAbrirAdmin = { nav.navigate(RUTA_ADMIN) }
+                onAbrirAdmin = { nav.navigate(RUTA_ADMIN) },
+                categorias = vm.categorias,
+                categoriaSeleccionada = categoriaSeleccionada,
+                onCategoriaClick = vm::seleccionarCategoria,
+                busqueda = busqueda,
+                onBuscar = vm::buscar
             )
         }
 
