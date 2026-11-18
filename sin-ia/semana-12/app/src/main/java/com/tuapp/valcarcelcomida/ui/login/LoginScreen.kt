@@ -15,7 +15,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -34,7 +37,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.tuapp.valcarcelcomida.domain.model.Sesion
 import com.tuapp.valcarcelcomida.ui.UiState
 import com.tuapp.valcarcelcomida.ui.components.Cargando
@@ -70,7 +72,12 @@ fun LoginScreen(
                     modifier = Modifier.size(104.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Text("🍗", fontSize = 52.sp)
+                        Icon(
+                            imageVector = Icons.Filled.Restaurant,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(52.dp)
+                        )
                     }
                 }
                 Spacer(Modifier.height(20.dp))

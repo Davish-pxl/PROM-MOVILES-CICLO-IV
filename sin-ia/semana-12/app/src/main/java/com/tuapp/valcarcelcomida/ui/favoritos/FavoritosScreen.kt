@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -72,7 +73,7 @@ fun FavoritosScreen(
                 is UiState.Exito -> {
                     if (estado.datos.isEmpty()) {
                         MensajeVacio(
-                            emoji = "💛",
+                            icono = Icons.Filled.FavoriteBorder,
                             texto = "Aún no tienes favoritos.\nToca el corazón de una receta para guardarla aquí."
                         )
                     } else {

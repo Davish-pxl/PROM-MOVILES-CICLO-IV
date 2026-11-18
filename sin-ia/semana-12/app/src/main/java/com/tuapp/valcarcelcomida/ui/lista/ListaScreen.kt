@@ -26,6 +26,8 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Restaurant
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Warning
@@ -51,6 +53,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -58,7 +61,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.tuapp.valcarcelcomida.domain.model.Categoria
 import com.tuapp.valcarcelcomida.domain.model.Item
@@ -89,7 +91,6 @@ fun ListaScreen(
     onBuscar: (String) -> Unit = {}
 ) {
     val nombreCategoria = categorias.firstOrNull { it.clave == categoriaSeleccionada }?.nombre ?: "Pollo"
-
     val snackbar = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     val alTocarFavorito: (String) -> Unit = { id ->
@@ -156,9 +157,9 @@ fun ListaScreen(
                 is UiState.Exito -> {
                     if (estado.datos.isEmpty()) {
                         if (busqueda.isNotBlank()) {
-                            MensajeVacio(emoji = "🔍", texto = "No encontramos recetas con “${busqueda.trim()}”")
+                            MensajeVacio(icono = Icons.Filled.SearchOff, texto = "No encontramos recetas con “${busqueda.trim()}”")
                         } else {
-                            MensajeVacio(emoji = "🍽️", texto = "No hay recetas para mostrar")
+                            MensajeVacio(icono = Icons.Filled.Restaurant, texto = "No hay recetas para mostrar")
                         }
                     } else {
                         GrillaComidas(
@@ -218,7 +219,6 @@ fun ItemTarjeta(
                     .aspectRatio(1f)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
             )
-            // Botón de favorito flotando sobre la foto
             Surface(
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
@@ -346,15 +346,19 @@ fun CoroutineScope.avisarFavoritoQuitado(
         if (resultado == SnackbarResult.ActionPerformed) onDeshacer()
     }
 }
-
 @Composable
-fun MensajeVacio(emoji: String, texto: String) {
+fun MensajeVacio(icono: ImageVector, texto: String) {
     Column(
         Modifier.fillMaxSize().padding(32.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(emoji, fontSize = 56.sp)
+        Icon(
+            imageVector = icono,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(64.dp)
+        )
         Spacer(Modifier.height(12.dp))
         Text(
             texto,
@@ -410,6 +414,7 @@ private fun PreviewError() = ValcarcelComidaTheme {
 private fun PreviewVacio() = ValcarcelComidaTheme {
     ListaScreen(UiState.Exito(emptyList()), null, {}, {}, {}, {}, {})
 }
+
 
 private val itemsPreview = listOf(
     Item(id = "1", titulo = "Pollo de ejemplo 1", subtitulo = "Pollo", imagenUrl = null),

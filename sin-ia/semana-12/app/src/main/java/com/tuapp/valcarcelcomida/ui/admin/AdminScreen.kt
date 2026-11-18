@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -35,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -93,9 +96,9 @@ private fun PanelContenido(
 
     Column(Modifier.fillMaxSize().padding(16.dp)) {
         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            Total("🍽️", "Recetas guardadas", resumen.totalGuardado,
+            Total(Icons.Filled.Restaurant, "Recetas guardadas", resumen.totalGuardado,
                 MaterialTheme.colorScheme.primaryContainer, Modifier.weight(1f))
-            Total("💛", "Favoritos", resumen.totalFavoritos,
+            Total(Icons.Filled.Favorite, "Favoritos", resumen.totalFavoritos,
                 MaterialTheme.colorScheme.tertiaryContainer, Modifier.weight(1f))
         }
 
@@ -149,10 +152,10 @@ private fun PanelContenido(
 }
 
 @Composable
-private fun Total(emoji: String, titulo: String, valor: Int, fondo: Color, modifier: Modifier = Modifier) {
+private fun Total(icono: ImageVector, titulo: String, valor: Int, fondo: Color, modifier: Modifier = Modifier) {
     Card(modifier, colors = CardDefaults.cardColors(containerColor = fondo)) {
         Column(Modifier.fillMaxWidth().padding(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(emoji, style = MaterialTheme.typography.headlineSmall)
+            Icon(imageVector = icono, contentDescription = null, modifier = Modifier.size(28.dp))
             Text(valor.toString(), style = MaterialTheme.typography.displaySmall, fontWeight = FontWeight.Bold)
             Text(titulo, style = MaterialTheme.typography.bodyMedium)
         }
