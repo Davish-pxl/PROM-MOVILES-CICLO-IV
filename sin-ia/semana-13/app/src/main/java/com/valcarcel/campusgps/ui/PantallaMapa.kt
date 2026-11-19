@@ -10,13 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -29,13 +27,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.valcarcel.campusgps.model.UbicacionUi
 import com.valcarcel.campusgps.util.formatearDistancia
 import com.valcarcel.campusgps.viewmodel.MapaViewModel
+import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -101,20 +99,14 @@ fun PantallaMapa(vm: MapaViewModel) {
                         onClick = { alPulsar() }
                     )
                     Spacer(Modifier.height(16.dp))
-                    Surface(
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        shape = RoundedCornerShape(12.dp),
+                    MensajeError(
+                        error = e,
+                        onReintentar = { alPulsar() },
                         modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = e.mensaje,
-                            color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
+                    )
                 }
             }
+
             else -> {
                 val cercano = masCercano
 
@@ -144,6 +136,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                             onClick = { alPulsar() }
                         )
                         Spacer(Modifier.height(6.dp))
+
                         OutlinedButton(
                             onClick = { cercano?.let { vm.seleccionar(it.id) } },
                             enabled = cercano != null
@@ -164,6 +157,14 @@ fun PantallaMapa(vm: MapaViewModel) {
                                     append("${cercano.nombre} ($distancia)")
                                 },
                                 style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                        if (e is UbicacionUi.Lista) {
+                            Text(
+                                text = "Latitud: ${String.format(Locale.US, "%.4f", e.posicion.latitud)}   " +
+                                        "Longitud: ${String.format(Locale.US, "%.4f", e.posicion.longitud)}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         Spacer(Modifier.height(8.dp))
