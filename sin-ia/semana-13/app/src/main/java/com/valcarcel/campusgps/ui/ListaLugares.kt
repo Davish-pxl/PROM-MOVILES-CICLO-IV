@@ -29,13 +29,15 @@ import com.valcarcel.campusgps.model.LugarConDistancia
 import com.valcarcel.campusgps.util.formatearDistancia
 
 private val AzulLugar = Color(0xFF1E88E5)
+private val VerdeCercano = Color(0xFF43A047)
 
 @Composable
 fun ListaLugares(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     onClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    masCercanoId: Int? = null
 ) {
     LazyColumn(
         modifier = modifier,
@@ -45,6 +47,7 @@ fun ListaLugares(
             TarjetaLugar(
                 item = item,
                 esSeleccionado = item.lugar.id == seleccionado,
+                esMasCercano = item.lugar.id == masCercanoId,
                 onClick = { onClick(item.lugar.id) }
             )
         }
@@ -55,6 +58,7 @@ fun ListaLugares(
 private fun TarjetaLugar(
     item: LugarConDistancia,
     esSeleccionado: Boolean,
+    esMasCercano: Boolean,
     onClick: () -> Unit
 ) {
     Card(
@@ -79,10 +83,9 @@ private fun TarjetaLugar(
                 modifier = Modifier
                     .size(10.dp)
                     .clip(CircleShape)
-                    .background(AzulLugar)
+                    .background(if (esMasCercano) VerdeCercano else AzulLugar)
             )
             Spacer(Modifier.width(12.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.lugar.nombre,
