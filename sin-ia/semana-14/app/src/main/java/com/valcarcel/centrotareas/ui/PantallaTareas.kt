@@ -182,6 +182,7 @@ fun TarjetaDosCargas(vm: TareasViewModel) {
     val historial by vm.historialTiempos.collectAsState()
     val promediosPorModo by vm.promediosPorModo.collectAsState()
     val cargando = carga is CargaUi.Cargando
+    val intento by vm.intento.collectAsState()
 
     TarjetaGris {
         TituloTarjeta("Dos cargas")
@@ -217,7 +218,16 @@ fun TarjetaDosCargas(vm: TareasViewModel) {
 
         when (val estado = carga) {
             CargaUi.Inicial -> Unit
-            CargaUi.Cargando -> CircularProgressIndicator()
+            CargaUi.Cargando -> {
+                CircularProgressIndicator()
+                if (intento > 1) {
+                    Text(
+                        text = "Reintentando (intento $intento de 3)...",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
             is CargaUi.Exito -> RecuadroResultado(
                 "Modo: ${estado.modo}",
                 "Perfil: ${estado.perfil}",

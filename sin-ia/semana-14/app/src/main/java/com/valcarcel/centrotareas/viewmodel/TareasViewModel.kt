@@ -91,10 +91,35 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     }
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
+    private val _intento = MutableStateFlow(0)
+    val intento: StateFlow<Int> = _intento.asStateFlow()
     private val _simularError = MutableStateFlow(false)
     val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
     private val _historialTiempos = MutableStateFlow<List<RegistroTiempo>>(emptyList())
     val historialTiempos: StateFlow<List<RegistroTiempo>> = _historialTiempos.asStateFlow()
+
+    private suspend fun <T> conReintentos(
+        intentos: Int = 3,
+        esperaInicial: Long = 1000,
+        bloque: suspend () -> T
+    ): T {
+        var intentoActual = 1
+        var espera = esperaInicial
+        while (true) {
+            _intento.value = intentoActual
+            try {
+                return bloque()
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                if (intentoActual >= intentos) {
+                    throw e
+                }
+                delay(espera)
+                espera *= 2
+                intentoActual++
+            }
+        }
+    }
 
     val promediosPorModo: StateFlow<Map<String, Long>> = historialTiempos
         .map { lista ->
@@ -125,14 +150,16 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             val inicio = System.currentTimeMillis()
             try {
                 val perfil = repo.cargarPerfil()
-                val pedidos = repo.cargarPedidos(_simularError.value)
+                val pedidos = conReintentos { repo.cargarPedidos(_simularError.value) }
 
                 val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, ms)
                 _historialTiempos.value = (_historialTiempos.value + RegistroTiempo("Una por una", ms)).takeLast(10)
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                _carga.value = CargaUi.Error("No se pudo cargar: " + e.message)
+                _carga.value = CargaUi.Error("No se pudo cargar tras 3 intentos: " + e.message)
+            } finally {
+                _intento.value = 0
             }
         }
     }
@@ -145,7 +172,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             try {
                 val (perfil, pedidos) = coroutineScope {
                     val a = async { repo.cargarPerfil() }
-                    val b = async { repo.cargarPedidos(_simularError.value) }
+                    val b = async { conReintentos { repo.cargarPedidos(_simularError.value) } }
                     Pair(a.await(), b.await())
                 }
 
@@ -154,7 +181,9 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 _historialTiempos.value = (_historialTiempos.value + RegistroTiempo("A la vez", ms)).takeLast(10)
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
-                _carga.value = CargaUi.Error("No se pudo cargar: " + e.message)
+                _carga.value = CargaUi.Error("No se pudo cargar tras 3 intentos: " + e.message)
+            } finally {
+                _intento.value = 0
             }
         }
     }
