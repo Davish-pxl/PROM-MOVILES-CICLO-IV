@@ -5,6 +5,8 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,8 +16,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -46,7 +50,8 @@ import java.util.Locale
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
-    val lugares by vm.lugares.collectAsState()
+    val lugaresVisibles by vm.lugaresVisibles.collectAsState()
+    val categoria by vm.categoria.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
 
@@ -128,7 +133,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     ) {
                         MapaUbicacion(
                             estado = e,
-                            lugares = lugares,
+                            lugares = lugaresVisibles,
                             seleccionado = seleccionado,
                             masCercanoId = cercano?.id,
                             modifier = Modifier
@@ -137,9 +142,11 @@ fun PantallaMapa(vm: MapaViewModel) {
                         )
                         PanelLugares(
                             estado = e,
-                            lugares = lugares,
+                            lugares = lugaresVisibles,
                             seleccionado = seleccionado,
                             cercano = cercano,
+                            categoria = categoria,
+                            onFiltrarCategoria = { vm.filtrarCategoria(it) },
                             onBuscar = { alPulsar() },
                             onSeleccionar = { id -> vm.seleccionar(id) },
                             listaOcupaResto = true,
@@ -156,7 +163,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     ) {
                         MapaUbicacion(
                             estado = e,
-                            lugares = lugares,
+                            lugares = lugaresVisibles,
                             seleccionado = seleccionado,
                             masCercanoId = cercano?.id,
                             modifier = Modifier
@@ -165,9 +172,11 @@ fun PantallaMapa(vm: MapaViewModel) {
                         )
                         PanelLugares(
                             estado = e,
-                            lugares = lugares,
+                            lugares = lugaresVisibles,
                             seleccionado = seleccionado,
                             cercano = cercano,
+                            categoria = categoria,
+                            onFiltrarCategoria = { vm.filtrarCategoria(it) },
                             onBuscar = { alPulsar() },
                             onSeleccionar = { id -> vm.seleccionar(id) },
                             listaOcupaResto = false,
@@ -179,12 +188,15 @@ fun PantallaMapa(vm: MapaViewModel) {
         }
     }
 }
+
 @Composable
 private fun PanelLugares(
     estado: UbicacionUi,
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     cercano: Lugar?,
+    categoria: String?,
+    onFiltrarCategoria: (String?) -> Unit,
     onBuscar: () -> Unit,
     onSeleccionar: (Int) -> Unit,
     listaOcupaResto: Boolean,
@@ -232,6 +244,29 @@ private fun PanelLugares(
         }
         Spacer(Modifier.height(8.dp))
 
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            val categorias = listOf(
+                null to "Todas",
+                "Estudio" to "Estudio",
+                "Comida" to "Comida",
+                "Eventos" to "Eventos",
+                "Servicios" to "Servicios"
+            )
+            categorias.forEach { (catValue, catLabel) ->
+                FilterChip(
+                    selected = categoria == catValue,
+                    onClick = { onFiltrarCategoria(catValue) },
+                    label = { Text(catLabel) }
+                )
+            }
+        }
+        Spacer(Modifier.height(8.dp))
+
         ListaLugares(
             lugares = lugares,
             seleccionado = seleccionado,
@@ -240,7 +275,7 @@ private fun PanelLugares(
             modifier = if (listaOcupaResto)
                 Modifier.fillMaxWidth().weight(1f)
             else
-                Modifier.fillMaxWidth().height(220.dp)
+                Modifier.fillMaxWidth().height(180.dp)
         )
     }
 }
