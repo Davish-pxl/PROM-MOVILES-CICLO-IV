@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.valcarcel.campusgps.model.UbicacionUi
 import com.valcarcel.campusgps.viewmodel.MapaViewModel
-import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,7 +126,6 @@ fun PantallaMapa(vm: MapaViewModel) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(300.dp)
                             .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
@@ -136,22 +134,20 @@ fun PantallaMapa(vm: MapaViewModel) {
                             onClick = { alPulsar() }
                         )
                         Spacer(Modifier.height(8.dp))
-
-                        when (e) {
-                            is UbicacionUi.Lista -> {
-                                Text("Latitud: ${String.format(Locale.US, "%.4f", e.posicion.latitud)}")
-                                Text("Longitud: ${String.format(Locale.US, "%.4f", e.posicion.longitud)}")
-                            }
-                            UbicacionUi.Buscando -> Text("Buscando...")
-                            else -> Text("Pulsa el botón para empezar")
-                        }
+                        ListaLugares(
+                            lugares = lugares,
+                            seleccionado = seleccionado,
+                            onClick = { id -> vm.seleccionar(id) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(220.dp)
+                        )
                     }
                 }
             }
         }
     }
 }
-
 @Composable
 private fun BotonUbicacion(habilitado: Boolean, onClick: () -> Unit) {
     Button(onClick = onClick, enabled = habilitado) {
