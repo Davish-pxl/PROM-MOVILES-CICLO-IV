@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -36,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.valcarcel.centrotareas.model.CargaUi
 import com.valcarcel.centrotareas.model.PrimosUi
 import com.valcarcel.centrotareas.viewmodel.TareasViewModel
 private val VerdeFondo = Color(0xFFE6F4EA)
@@ -65,6 +67,7 @@ fun PantallaTareas(vm: TareasViewModel) {
         ) {
             TarjetaTareaLarga(vm)
             TarjetaPrimos(vm)
+            TarjetaDosCargas(vm)
         }
     }
 }
@@ -161,9 +164,46 @@ fun TarjetaPrimos(vm: TareasViewModel) {
             PrimosUi.Calculando -> Text("Calculando...")
             PrimosUi.Cancelado -> Text("Cancelado")
             is PrimosUi.Listo -> RecuadroResultado(
-                titulo = "Primos hasta $ultimoN: ${estado.cantidad}",
-                detalle = "Tiempo: ${estado.milisegundos} ms"
+                "Primos hasta $ultimoN: ${estado.cantidad}",
+                "Tiempo: ${estado.milisegundos} ms"
             )
+        }
+    }
+}
+
+@Composable
+fun TarjetaDosCargas(vm: TareasViewModel) {
+    val carga by vm.carga.collectAsState()
+    val cargando = carga is CargaUi.Cargando
+
+    TarjetaGris {
+        TituloTarjeta("Dos cargas")
+
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(
+                onClick = { vm.cargarUnaPorUna() },
+                enabled = !cargando
+            ) {
+                Text("Una por una")
+            }
+            Button(
+                onClick = { vm.cargarALaVez() },
+                enabled = !cargando
+            ) {
+                Text("A la vez")
+            }
+        }
+
+        when (val estado = carga) {
+            CargaUi.Inicial -> Unit
+            CargaUi.Cargando -> CircularProgressIndicator()
+            is CargaUi.Exito -> RecuadroResultado(
+                "Modo: ${estado.modo}",
+                "Perfil: ${estado.perfil}",
+                "Pedidos: ${estado.pedidos}",
+                "Tiempo: ${estado.milisegundos} ms"
+            )
+            is CargaUi.Error -> Text(estado.mensaje)
         }
     }
 }
@@ -200,7 +240,7 @@ private fun TituloTarjeta(texto: String) {
 }
 
 @Composable
-private fun RecuadroResultado(titulo: String, detalle: String) {
+private fun RecuadroResultado(titulo: String, vararg detalles: String) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
@@ -211,11 +251,13 @@ private fun RecuadroResultado(titulo: String, detalle: String) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(text = titulo, fontWeight = FontWeight.Bold, color = VerdeTexto)
-            Text(
-                text = detalle,
-                style = MaterialTheme.typography.bodySmall,
-                color = VerdeTexto
-            )
+            detalles.forEach { detalle ->
+                Text(
+                    text = detalle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = VerdeTexto
+                )
+            }
         }
     }
 }
