@@ -54,6 +54,8 @@ fun PantallaMapa(vm: MapaViewModel) {
     val categoria by vm.categoria.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val masCercano by vm.masCercano.collectAsState()
+    val radio by vm.radio.collectAsState()
+    val idsDentroDelRadio by vm.idsDentroDelRadio.collectAsState()
 
     val contexto = LocalContext.current
     val esHorizontal =
@@ -135,6 +137,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                             estado = e,
                             lugares = lugaresVisibles,
                             seleccionado = seleccionado,
+                            radioMetros = radio,
                             masCercanoId = cercano?.id,
                             modifier = Modifier
                                 .weight(1f)
@@ -146,6 +149,9 @@ fun PantallaMapa(vm: MapaViewModel) {
                             seleccionado = seleccionado,
                             cercano = cercano,
                             categoria = categoria,
+                            radio = radio,
+                            onCambiarRadio = { vm.cambiarRadio(it) },
+                            idsDentro = idsDentroDelRadio,
                             onFiltrarCategoria = { vm.filtrarCategoria(it) },
                             onBuscar = { alPulsar() },
                             onSeleccionar = { id -> vm.seleccionar(id) },
@@ -165,6 +171,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                             estado = e,
                             lugares = lugaresVisibles,
                             seleccionado = seleccionado,
+                            radioMetros = radio,
                             masCercanoId = cercano?.id,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -176,6 +183,9 @@ fun PantallaMapa(vm: MapaViewModel) {
                             seleccionado = seleccionado,
                             cercano = cercano,
                             categoria = categoria,
+                            radio = radio,
+                            onCambiarRadio = { vm.cambiarRadio(it) },
+                            idsDentro = idsDentroDelRadio,
                             onFiltrarCategoria = { vm.filtrarCategoria(it) },
                             onBuscar = { alPulsar() },
                             onSeleccionar = { id -> vm.seleccionar(id) },
@@ -196,6 +206,9 @@ private fun PanelLugares(
     seleccionado: Int?,
     cercano: Lugar?,
     categoria: String?,
+    radio: Int,
+    onCambiarRadio: (Int) -> Unit,
+    idsDentro: Set<Int>,
     onFiltrarCategoria: (String?) -> Unit,
     onBuscar: () -> Unit,
     onSeleccionar: (Int) -> Unit,
@@ -248,7 +261,8 @@ private fun PanelLugares(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             val categorias = listOf(
                 null to "Todas",
@@ -264,6 +278,17 @@ private fun PanelLugares(
                     label = { Text(catLabel) }
                 )
             }
+
+            Spacer(Modifier.width(8.dp))
+
+            val radios = listOf(100, 200, 500)
+            radios.forEach { r ->
+                FilterChip(
+                    selected = radio == r,
+                    onClick = { onCambiarRadio(r) },
+                    label = { Text("$r m") }
+                )
+            }
         }
         Spacer(Modifier.height(8.dp))
 
@@ -272,6 +297,7 @@ private fun PanelLugares(
             seleccionado = seleccionado,
             onClick = onSeleccionar,
             masCercanoId = cercano?.id,
+            idsDentro = idsDentro,
             modifier = if (listaOcupaResto)
                 Modifier.fillMaxWidth().weight(1f)
             else

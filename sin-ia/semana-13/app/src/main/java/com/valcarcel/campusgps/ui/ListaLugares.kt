@@ -37,7 +37,8 @@ fun ListaLugares(
     seleccionado: Int?,
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    masCercanoId: Int? = null
+    masCercanoId: Int? = null,
+    idsDentro: Set<Int> = emptySet()
 ) {
     LazyColumn(
         modifier = modifier,
@@ -48,6 +49,7 @@ fun ListaLugares(
                 item = item,
                 esSeleccionado = item.lugar.id == seleccionado,
                 esMasCercano = item.lugar.id == masCercanoId,
+                esDentro = idsDentro.contains(item.lugar.id),
                 onClick = { onClick(item.lugar.id) }
             )
         }
@@ -59,6 +61,7 @@ private fun TarjetaLugar(
     item: LugarConDistancia,
     esSeleccionado: Boolean,
     esMasCercano: Boolean,
+    esDentro: Boolean,
     onClick: () -> Unit
 ) {
     Card(
@@ -92,11 +95,24 @@ private fun TarjetaLugar(
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.bodyMedium
                 )
-                Text(
-                    text = item.lugar.categoria,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = item.lugar.categoria,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    if (esDentro) {
+                        Text(
+                            text = "• Dentro del radio",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
             }
             Text(
                 text = item.metros?.let { formatearDistancia(it) } ?: "Sin calcular",

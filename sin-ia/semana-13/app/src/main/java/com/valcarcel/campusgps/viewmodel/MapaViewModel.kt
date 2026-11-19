@@ -49,6 +49,15 @@ class MapaViewModel(
     val masCercano: StateFlow<Lugar?> = lugaresVisibles
         .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    private val _radio = MutableStateFlow(200)
+    val radio: StateFlow<Int> = _radio.asStateFlow()
+
+    val idsDentroDelRadio: StateFlow<Set<Int>> =
+        combine(lugares, radio) { lista, rad ->
+            lista.filter { it.metros != null && it.metros <= rad }
+                .map { it.lugar.id }
+                .toSet()
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
 
     fun filtrarCategoria(cat: String?) {
         _categoria.value = cat
@@ -59,6 +68,9 @@ class MapaViewModel(
         if (!sigueVisible) {
             _seleccionado.value = null
         }
+    }
+    fun cambiarRadio(metros: Int) {
+        _radio.value = metros
     }
 
     fun buscar() {
