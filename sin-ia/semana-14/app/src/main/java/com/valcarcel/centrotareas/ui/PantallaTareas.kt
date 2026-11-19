@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -178,6 +179,8 @@ fun TarjetaPrimos(vm: TareasViewModel) {
 fun TarjetaDosCargas(vm: TareasViewModel) {
     val carga by vm.carga.collectAsState()
     val simularError by vm.simularError.collectAsState()
+    val historial by vm.historialTiempos.collectAsState()
+    val promediosPorModo by vm.promediosPorModo.collectAsState()
     val cargando = carga is CargaUi.Cargando
 
     TarjetaGris {
@@ -226,6 +229,93 @@ fun TarjetaDosCargas(vm: TareasViewModel) {
                 OutlinedButton(onClick = { vm.cargarALaVez() }) {
                     Text("Reintentar")
                 }
+            }
+        }
+
+        if (historial.isNotEmpty()) {
+            Text(
+                text = "Comparación de tiempos",
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "N",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(0.5f),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "Modo",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(2f),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "Tiempo (ms)",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(1.5f),
+                    textAlign = TextAlign.End
+                )
+            }
+
+            historial.forEachIndexed { index, registro ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${index + 1}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.weight(0.5f),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = registro.modo,
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.weight(2f),
+                        textAlign = TextAlign.Center
+                    )
+                    Text(
+                        text = "${registro.milisegundos}",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.weight(1.5f),
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+
+            promediosPorModo["Una por una"]?.let { promUna ->
+                Text(
+                    text = "Promedio Una por una: $promUna ms",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            promediosPorModo["A la vez"]?.let { promVez ->
+                Text(
+                    text = "Promedio A la vez: $promVez ms",
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            TextButton(
+                onClick = { vm.limpiarHistorial() }
+            ) {
+                Text("Limpiar historial")
             }
         }
     }

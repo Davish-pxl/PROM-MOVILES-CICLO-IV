@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.valcarcel.centrotareas.data.TareasRepository
 import com.valcarcel.centrotareas.model.CargaUi
 import com.valcarcel.centrotareas.model.PrimosUi
+import com.valcarcel.centrotareas.model.RegistroTiempo
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -13,8 +14,11 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -89,10 +93,30 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
     private val _simularError = MutableStateFlow(false)
     val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
+    private val _historialTiempos = MutableStateFlow<List<RegistroTiempo>>(emptyList())
+    val historialTiempos: StateFlow<List<RegistroTiempo>> = _historialTiempos.asStateFlow()
+
+    val promediosPorModo: StateFlow<Map<String, Long>> = historialTiempos
+        .map { lista ->
+            lista.groupBy { it.modo }
+                .mapValues { (_, registros) ->
+                    registros.map { it.milisegundos }.average().toLong()
+                }
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyMap()
+        )
 
     fun cambiarSimularError(valor: Boolean) {
         _simularError.value = valor
     }
+
+    fun limpiarHistorial() {
+        _historialTiempos.value = emptyList()
+    }
+
     fun cargarUnaPorUna() {
         if (_carga.value is CargaUi.Cargando) return
 
@@ -105,6 +129,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
                 val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, ms)
+                _historialTiempos.value = (_historialTiempos.value + RegistroTiempo("Una por una", ms)).takeLast(10)
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 _carga.value = CargaUi.Error("No se pudo cargar: " + e.message)
@@ -126,6 +151,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
                 val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("A la vez", perfil, pedidos.size, ms)
+                _historialTiempos.value = (_historialTiempos.value + RegistroTiempo("A la vez", ms)).takeLast(10)
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 _carga.value = CargaUi.Error("No se pudo cargar: " + e.message)
