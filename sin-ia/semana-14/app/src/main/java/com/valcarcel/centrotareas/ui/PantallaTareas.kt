@@ -1,11 +1,14 @@
 package com.valcarcel.centrotareas.ui
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -13,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -51,6 +55,7 @@ fun PantallaTareas(vm: TareasViewModel) {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             TarjetaTareaLarga(vm)
+            NotaTareaLarga(vm)
         }
     }
 }
@@ -77,13 +82,33 @@ fun TarjetaTareaLarga(vm: TareasViewModel) {
                 Text("Tócame: $toques")
             }
 
-            Button(onClick = { vm.tareaLargaMala() }) {
-                Text("Tarea larga (MAL)")
+            Button(onClick = { vm.tareaLarga() }) {
+                Text("Tarea larga")
             }
 
             Text(
                 text = mensaje,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+@Composable
+fun ColumnScope.NotaTareaLarga(vm: TareasViewModel) {
+    val mensaje by vm.mensaje.collectAsState()
+
+    if (mensaje == "Trabajando...") {
+        Surface(
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            shape = RoundedCornerShape(6.dp),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.25f))
+        ) {
+            Text(
+                text = "Los toques siguen sumando mientras trabaja",
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }
