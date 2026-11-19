@@ -3,6 +3,8 @@ package com.valcarcel.centrotareas.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,6 +23,7 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -36,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.valcarcel.centrotareas.model.CargaUi
 import com.valcarcel.centrotareas.model.PrimosUi
@@ -170,15 +174,29 @@ fun TarjetaPrimos(vm: TareasViewModel) {
         }
     }
 }
-
 @Composable
 fun TarjetaDosCargas(vm: TareasViewModel) {
     val carga by vm.carga.collectAsState()
+    val simularError by vm.simularError.collectAsState()
     val cargando = carga is CargaUi.Cargando
 
     TarjetaGris {
         TituloTarjeta("Dos cargas")
 
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Switch(
+                checked = simularError,
+                onCheckedChange = { vm.cambiarSimularError(it) }
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = "Simular error",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             OutlinedButton(
                 onClick = { vm.cargarUnaPorUna() },
@@ -203,11 +221,15 @@ fun TarjetaDosCargas(vm: TareasViewModel) {
                 "Pedidos: ${estado.pedidos}",
                 "Tiempo: ${estado.milisegundos} ms"
             )
-            is CargaUi.Error -> Text(estado.mensaje)
+            is CargaUi.Error -> {
+                RecuadroError(estado.mensaje)
+                OutlinedButton(onClick = { vm.cargarALaVez() }) {
+                    Text("Reintentar")
+                }
+            }
         }
     }
 }
-
 @Composable
 private fun TarjetaGris(contenido: @Composable () -> Unit) {
     OutlinedCard(
@@ -259,5 +281,22 @@ private fun RecuadroResultado(titulo: String, vararg detalles: String) {
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun RecuadroError(mensaje: String) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.errorContainer
+    ) {
+        Text(
+            text = mensaje,
+            modifier = Modifier.padding(12.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onErrorContainer,
+            textAlign = TextAlign.Center
+        )
     }
 }
