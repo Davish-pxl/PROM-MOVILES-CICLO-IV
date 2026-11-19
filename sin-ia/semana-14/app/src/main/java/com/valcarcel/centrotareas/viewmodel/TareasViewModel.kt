@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.valcarcel.centrotareas.data.TareasRepository
 import com.valcarcel.centrotareas.model.CargaUi
 import com.valcarcel.centrotareas.model.PrimosUi
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -25,7 +26,6 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     private val _corriendo = MutableStateFlow(false)
     val corriendo: StateFlow<Boolean> = _corriendo.asStateFlow()
-
     private var trabajo: Job? = null
 
     fun tareaLarga() {
@@ -60,6 +60,28 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     }
     private val _primos = MutableStateFlow<PrimosUi>(PrimosUi.Inicial)
     val primos: StateFlow<PrimosUi> = _primos.asStateFlow()
+    private var trabajoPrimos: Job? = null
+
+    fun contar(hasta: Int) {
+        if (hasta < 2 || _primos.value is PrimosUi.Calculando) return
+
+        trabajoPrimos = viewModelScope.launch {
+            _primos.value = PrimosUi.Calculando
+            val inicio = System.currentTimeMillis()
+            try {
+                val cantidad = repo.contarPrimos(hasta)
+                val ms = System.currentTimeMillis() - inicio
+                _primos.value = PrimosUi.Listo(cantidad, ms)
+            } catch (e: CancellationException) {
+                _primos.value = PrimosUi.Cancelado
+                throw e
+            }
+        }
+    }
+
+    fun cancelarPrimos() {
+        trabajoPrimos?.cancel()
+    }
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
 }
