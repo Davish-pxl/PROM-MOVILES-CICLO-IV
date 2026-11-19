@@ -1,5 +1,6 @@
 package com.valcarcel.campusgps.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
@@ -11,12 +12,15 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 import com.valcarcel.campusgps.model.LugarConDistancia
 import com.valcarcel.campusgps.model.UbicacionUi
 
+@SuppressLint("MissingPermission")
 @Composable
 fun MapaUbicacion(
     estado: UbicacionUi,
@@ -24,8 +28,10 @@ fun MapaUbicacion(
     seleccionado: Int?,
     radioMetros: Int,
     modifier: Modifier = Modifier,
-    masCercanoId: Int? = null
+    masCercanoId: Int? = null,
+    permisoConcedido: Boolean = false
 ) {
+    // El permiso de ubicación ya se verificó previamente en PantallaMapa
     val camara = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(-12.0464, -77.0428), 12f)
     }
@@ -44,7 +50,12 @@ fun MapaUbicacion(
         }
     }
 
-    GoogleMap(modifier = modifier, cameraPositionState = camara) {
+    GoogleMap(
+        modifier = modifier,
+        cameraPositionState = camara,
+        properties = MapProperties(isMyLocationEnabled = permisoConcedido),
+        uiSettings = MapUiSettings(myLocationButtonEnabled = permisoConcedido)
+    ) {
         if (estado is UbicacionUi.Lista) {
             Marker(
                 state = rememberUpdatedMarkerState(

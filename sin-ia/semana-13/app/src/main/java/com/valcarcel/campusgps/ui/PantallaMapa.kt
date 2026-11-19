@@ -29,6 +29,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -61,10 +64,19 @@ fun PantallaMapa(vm: MapaViewModel) {
     val esHorizontal =
         LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
 
+    val permisoInicial = ContextCompat.checkSelfPermission(
+        contexto, Manifest.permission.ACCESS_FINE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+        contexto, Manifest.permission.ACCESS_COARSE_LOCATION
+    ) == PackageManager.PERMISSION_GRANTED
+
+    var permisoConcedido by remember { mutableStateOf(permisoInicial) }
+
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { resultado ->
         if (resultado.values.any { it }) {
+            permisoConcedido = true
             vm.buscar()
         } else {
             vm.permisoDenegado()
@@ -80,6 +92,7 @@ fun PantallaMapa(vm: MapaViewModel) {
         ) == PackageManager.PERMISSION_GRANTED
 
         if (tieneFine || tieneCoarse) {
+            permisoConcedido = true
             vm.buscar()
         } else {
             lanzador.launch(
@@ -139,6 +152,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                             seleccionado = seleccionado,
                             radioMetros = radio,
                             masCercanoId = cercano?.id,
+                            permisoConcedido = permisoConcedido,
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxHeight()
@@ -173,6 +187,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                             seleccionado = seleccionado,
                             radioMetros = radio,
                             masCercanoId = cercano?.id,
+                            permisoConcedido = permisoConcedido,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .weight(1f)
