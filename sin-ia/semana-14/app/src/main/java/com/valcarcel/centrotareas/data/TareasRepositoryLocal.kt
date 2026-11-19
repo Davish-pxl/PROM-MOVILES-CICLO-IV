@@ -18,12 +18,17 @@ class TareasRepositoryLocal : TareasRepository {
         if (simularError) throw IOException("Sin conexión")
         return listOf("Pedido 101", "Pedido 102", "Pedido 103")
     }
-    override suspend fun contarPrimos(hasta: Int): Int = withContext(Dispatchers.Default) {
+    override suspend fun contarPrimos(hasta: Int, alAvanzar: (Float) -> Unit): Int = withContext(Dispatchers.Default) {
         var cantidad = 0
+        val paso = maxOf(1, hasta / 100)
         for (n in 2..hasta) {
             ensureActive()
             if (esPrimo(n)) cantidad++
+            if (n % paso == 0) {
+                alAvanzar(n.toFloat() / hasta)
+            }
         }
+        alAvanzar(1f)
         cantidad
     }
     private fun esPrimo(n: Int): Boolean {

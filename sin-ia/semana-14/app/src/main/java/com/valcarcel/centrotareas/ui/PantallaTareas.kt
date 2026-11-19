@@ -1,9 +1,11 @@
 package com.valcarcel.centrotareas.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -122,6 +124,7 @@ fun TarjetaTareaLarga(vm: TareasViewModel) {
 @Composable
 fun TarjetaPrimos(vm: TareasViewModel) {
     val primos by vm.primos.collectAsState()
+    val progresoPrimos by vm.progresoPrimos.collectAsState()
     var texto by rememberSaveable { mutableStateOf("500000") }
     var ultimoN by rememberSaveable { mutableIntStateOf(0) }
 
@@ -166,8 +169,25 @@ fun TarjetaPrimos(vm: TareasViewModel) {
 
         when (val estado = primos) {
             PrimosUi.Inicial -> Unit
-            PrimosUi.Calculando -> Text("Calculando...")
-            PrimosUi.Cancelado -> Text("Cancelado")
+            PrimosUi.Calculando -> {
+                Box(
+                    modifier = Modifier.size(72.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        progress = { progresoPrimos },
+                        modifier = Modifier.fillMaxSize(),
+                        strokeWidth = 6.dp
+                    )
+                    Text(
+                        text = "${(progresoPrimos * 100).toInt()} %",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Text("Calculando...")
+            }
+            PrimosUi.Cancelado -> Text("Cancelado al ${(progresoPrimos * 100).toInt()} %")
             is PrimosUi.Listo -> RecuadroResultado(
                 "Primos hasta $ultimoN: ${estado.cantidad}",
                 "Tiempo: ${estado.milisegundos} ms"
