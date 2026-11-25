@@ -2,6 +2,7 @@ package com.valcarcel.murocampus
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
@@ -12,6 +13,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -19,6 +24,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.valcarcel.murocampus.data.PostRepositoryRemote
 import com.valcarcel.murocampus.data.remote.RetrofitClient
+import com.valcarcel.murocampus.ui.PantallaDetalle
 import com.valcarcel.murocampus.ui.PantallaLista
 import com.valcarcel.murocampus.ui.theme.MuroCampusTheme
 import com.valcarcel.murocampus.viewmodel.PostsViewModel
@@ -39,6 +45,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+
+            BackHandler(enabled = idSeleccionado != null) {
+                idSeleccionado = null
+            }
             MuroCampusTheme(dynamicColor = false) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -54,10 +65,23 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ) { innerPadding ->
-                    PantallaLista(
-                        vm = vm,
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    val id = idSeleccionado
+                    if (id == null) {
+                        PantallaLista(
+                            vm = vm,
+                            modifier = Modifier.padding(innerPadding),
+                            onAbrir = { nuevoId ->
+                                idSeleccionado = nuevoId
+                                vm.abrir(nuevoId)
+                            }
+                        )
+                    } else {
+                        PantallaDetalle(
+                            id = id,
+                            vm = vm,
+                            modifier = Modifier.padding(innerPadding)
+                        )
+                    }
                 }
             }
         }
