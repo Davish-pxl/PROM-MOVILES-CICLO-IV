@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.valcarcel.murocampus.data.PostRepository
 import com.valcarcel.murocampus.mensajeDe
 import com.valcarcel.murocampus.model.Comentario
+import com.valcarcel.murocampus.model.NuevoPost
 import com.valcarcel.murocampus.model.Post
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -27,7 +28,6 @@ data class DetalleUi(
 class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
     val lista = _lista.asStateFlow()
-
     private val _usuarioFiltro = MutableStateFlow<Int?>(null)
     val usuarioFiltro = _usuarioFiltro.asStateFlow()
 
@@ -78,5 +78,19 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
             _detalle.value = UiState.Exito(DetalleUi(post, comentarios))
         }
+    }
+    private val _publicacion = MutableStateFlow<UiState<Post>?>(null)
+    val publicacion = _publicacion.asStateFlow()
+
+    fun publicar(titulo: String, texto: String) {
+        viewModelScope.launch {
+            _publicacion.value = UiState.Cargando
+            repo.crear(NuevoPost(userId = 1, title = titulo, body = texto))
+                .onSuccess { _publicacion.value = UiState.Exito(it) }
+                .onFailure { _publicacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+    fun limpiarPublicacion() {
+        _publicacion.value = null
     }
 }

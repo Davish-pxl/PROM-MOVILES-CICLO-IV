@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -20,8 +21,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.valcarcel.murocampus.data.PostRepositoryRemote
 import com.valcarcel.murocampus.data.remote.RetrofitClient
+import com.valcarcel.murocampus.ui.PantallaCrear
 import com.valcarcel.murocampus.ui.PantallaDetalle
 import com.valcarcel.murocampus.ui.PantallaLista
 import com.valcarcel.murocampus.ui.theme.MuroCampusTheme
@@ -32,9 +35,6 @@ import retrofit2.HttpException
 import java.io.IOException
 
 class MainActivity : ComponentActivity() {
-
-    // La Factory le entrega el Repository al ViewModel.
-    // by viewModels hace que el ViewModel sobreviva a la rotación.
     private val vm: PostsViewModel by viewModels {
         PostsViewModelFactory(PostRepositoryRemote(RetrofitClient.api))
     }
@@ -45,10 +45,12 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
-
-            BackHandler(enabled = idSeleccionado != null) {
+            var creando by rememberSaveable { mutableStateOf(false) }
+            BackHandler(enabled = idSeleccionado != null || creando) {
                 idSeleccionado = null
+                creando = false
             }
+
             MuroCampusTheme(dynamicColor = false) {
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -62,23 +64,42 @@ class MainActivity : ComponentActivity() {
                                 titleContentColor = Color.White
                             )
                         )
+                    },
+                    floatingActionButton = {
+                        if (idSeleccionado == null && !creando) {
+                            FloatingActionButton(
+                                onClick = {
+                                    vm.limpiarPublicacion()
+                                    creando = true
+                                },
+                                containerColor = Color(0xFF1E6BB0),
+                                contentColor = Color.White
+                            ) {
+                                Text("+", fontSize = 24.sp)
+                            }
+                        }
                     }
                 ) { innerPadding ->
                     val id = idSeleccionado
-                    if (id == null) {
-                        PantallaLista(
+                    when {
+                        creando -> PantallaCrear(
+                            vm = vm,
+                            modifier = Modifier.padding(innerPadding)
+                        )
+
+                        id != null -> PantallaDetalle(
+                            id = id,
+                            vm = vm,
+                            modifier = Modifier.padding(innerPadding)
+                        )
+
+                        else -> PantallaLista(
                             vm = vm,
                             modifier = Modifier.padding(innerPadding),
                             onAbrir = { nuevoId ->
                                 idSeleccionado = nuevoId
                                 vm.abrir(nuevoId)
                             }
-                        )
-                    } else {
-                        PantallaDetalle(
-                            id = id,
-                            vm = vm,
-                            modifier = Modifier.padding(innerPadding)
                         )
                     }
                 }
