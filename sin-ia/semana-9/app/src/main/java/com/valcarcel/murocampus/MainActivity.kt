@@ -20,24 +20,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.valcarcel.murocampus.data.PostRepositoryRemote
 import com.valcarcel.murocampus.data.remote.RetrofitClient
 import com.valcarcel.murocampus.ui.PantallaDetalle
 import com.valcarcel.murocampus.ui.PantallaLista
 import com.valcarcel.murocampus.ui.theme.MuroCampusTheme
 import com.valcarcel.murocampus.viewmodel.PostsViewModel
+import com.valcarcel.murocampus.viewmodel.PostsViewModelFactory
 import kotlinx.serialization.SerializationException
 import retrofit2.HttpException
 import java.io.IOException
 
 class MainActivity : ComponentActivity() {
 
+    // La Factory le entrega el Repository al ViewModel.
+    // by viewModels hace que el ViewModel sobreviva a la rotación.
     private val vm: PostsViewModel by viewModels {
-        viewModelFactory {
-            initializer { PostsViewModel(PostRepositoryRemote(RetrofitClient.api)) }
-        }
+        PostsViewModelFactory(PostRepositoryRemote(RetrofitClient.api))
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -87,7 +86,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
 fun mensajeDe(e: Throwable): String = when (e) {
     is IOException -> "Sin conexión a internet.\nRevisa tu red e inténtalo otra vez."
     is HttpException -> "Error del servidor (${e.code()})"
