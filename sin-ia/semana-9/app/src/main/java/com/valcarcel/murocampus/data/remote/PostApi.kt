@@ -3,7 +3,9 @@ package com.valcarcel.murocampus.data.remote
 import com.valcarcel.murocampus.model.Comentario
 import com.valcarcel.murocampus.model.NuevoPost
 import com.valcarcel.murocampus.model.Post
+import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
@@ -25,4 +27,7 @@ interface PostApi {
 
     @POST("posts")
     suspend fun crear(@Body nuevo: NuevoPost): Post
+
+    @DELETE("posts/{id}")
+    suspend fun borrar(@Path("id") id: Int): Response<Unit>
 }

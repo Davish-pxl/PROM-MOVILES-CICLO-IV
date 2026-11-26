@@ -5,6 +5,7 @@ import com.valcarcel.murocampus.model.Comentario
 import com.valcarcel.murocampus.model.NuevoPost
 import com.valcarcel.murocampus.model.Post
 import kotlin.coroutines.cancellation.CancellationException
+import retrofit2.HttpException
 
 interface PostRepository {
     suspend fun listar(): Result<List<Post>>
@@ -12,6 +13,7 @@ interface PostRepository {
     suspend fun comentarios(id: Int): Result<List<Comentario>>
     suspend fun porUsuario(userId: Int): Result<List<Post>>
     suspend fun crear(nuevo: NuevoPost): Result<Post>
+    suspend fun borrar(id: Int): Result<Unit>
 }
 
 class PostRepositoryRemote(private val api: PostApi) : PostRepository {
@@ -30,12 +32,21 @@ class PostRepositoryRemote(private val api: PostApi) : PostRepository {
 
     override suspend fun crear(nuevo: NuevoPost): Result<Post> =
         llamar { api.crear(nuevo) }
+    override suspend fun borrar(id: Int): Result<Unit> =
+        llamar {
+            val response = api.borrar(id)
+            if (!response.isSuccessful) {
+                throw HttpException(response)
+            }
+        }
+
+    // Un solo try/catch para todas las funciones
     private suspend fun <T> llamar(bloque: suspend () -> T): Result<T> =
         try {
             Result.success(bloque())
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(e)       // IOException, HttpException, SerializationException...
         }
 }

@@ -90,6 +90,7 @@ class MainActivity : ComponentActivity() {
                         id != null -> PantallaDetalle(
                             id = id,
                             vm = vm,
+                            onEliminada = { idSeleccionado = null },
                             modifier = Modifier.padding(innerPadding)
                         )
 
@@ -97,6 +98,7 @@ class MainActivity : ComponentActivity() {
                             vm = vm,
                             modifier = Modifier.padding(innerPadding),
                             onAbrir = { nuevoId ->
+                                vm.limpiarBorrado()
                                 idSeleccionado = nuevoId
                                 vm.abrir(nuevoId)
                             }
