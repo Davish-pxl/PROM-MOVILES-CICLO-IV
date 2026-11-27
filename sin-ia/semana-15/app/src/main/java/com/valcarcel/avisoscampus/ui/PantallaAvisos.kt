@@ -42,22 +42,21 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val permiso by vm.permiso.collectAsState()
 
-    // Paso 2: lanzador del cuadro de permiso que dibuja Android
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { concedido ->
         vm.permisoRespondido(concedido)
     }
-
-    // Paso 2: al iniciar, si ya estaba concedido, avisar al ViewModel
     LaunchedEffect(Unit) {
         if (Notificador.tienePermiso(contexto)) {
             vm.permisoRespondido(true)
         }
     }
-
-    // TODO Paso 3: recolectar vm.eventos y llamar a Notificador.mostrar
-    // TODO Paso 6: registrar el receptor del modo avión con DisposableEffect
+    LaunchedEffect(Unit) {
+        vm.eventos.collect { aviso ->
+            val mostrado = Notificador.mostrar(contexto, aviso)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -88,6 +87,11 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     }
                 }) {
                     Text("Permitir notificaciones")
+                }
+            }
+            Tarjeta("Avisos") {
+                Button(onClick = { vm.avisarAhora() }) {
+                    Text("Mostrar aviso")
                 }
             }
         }
