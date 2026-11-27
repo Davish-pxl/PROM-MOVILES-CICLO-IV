@@ -75,16 +75,16 @@ El ViewModel decide qué avisar y lo anota en el Repository. Después emite un e
 ## Capturas
 
 | Notificación en el panel | Recordatorio |
-|---|---|
-| ![Notificación](capturas/01-notificacion.png) | ![Recordatorio](capturas/02-recordatorio.png) |
+|-|--|
+|![notificacion.png](capturas/notificacion.png) | ![recordatorio.png](capturas/recordatorio.png) |
 
 | Modo avión | Historial |
-|---|---|
-| ![Modo avión](capturas/03-modo-avion.png) | ![Historial](capturas/04-historial.png) |
+|--|---|
+| ![modo avion.png](capturas/modo%20avion.png) | ![historial.png](capturas/historial.png) |
 
 | Permiso denegado |
 |---|
-| ![Permiso denegado](capturas/05-permiso-denegado.png) |
+| ![denegado.png](capturas/denegado.png) |
 
 ## Pruebas de aceptación
 

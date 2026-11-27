@@ -112,8 +112,14 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Tarjeta("Permiso de notificaciones") {
-                EtiquetaPermiso(permiso)
+            Tarjeta("Permiso de notificaciones", centrado = true) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("Estado:")
+                    EtiquetaPermiso(permiso)
+                }
                 Button(onClick = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         lanzador.launch(Manifest.permission.POST_NOTIFICATIONS)
@@ -123,28 +129,34 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }) {
                     Text("Permitir notificaciones")
                 }
-                mensaje?.let { texto ->
-                    Surface(
-                        color = MaterialTheme.colorScheme.errorContainer,
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = texto,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(12.dp)
-                        )
-                    }
+            }
+
+            mensaje?.let { texto ->
+                Surface(
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = texto,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(12.dp)
+                    )
                 }
-                if (permiso == PermisoUi.Denegado || mensaje != null) {
-                    OutlinedButton(onClick = {
+            }
+
+            if (permiso == PermisoUi.Denegado || mensaje != null) {
+                OutlinedButton(
+                    onClick = {
                         val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
                             .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
                         contexto.startActivity(intent)
-                    }) {
-                        Text("Abrir ajustes")
-                    }
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    Text("Abrir ajustes")
                 }
             }
 
@@ -202,17 +214,18 @@ fun PantallaAvisos(vm: AvisosViewModel) {
 
 @Composable
 fun EtiquetaPermiso(permiso: PermisoUi) {
-    val (texto, color) = when (permiso) {
-        PermisoUi.SinPedir -> "Sin pedir" to Color.Gray
-        PermisoUi.Concedido -> "Permitido" to Color(0xFF2E7D32)
-        PermisoUi.Denegado -> "Denegado" to Color(0xFFC62828)
+    val (texto, fondo, letra) = when (permiso) {
+        PermisoUi.SinPedir -> Triple("Sin pedir", Color(0xFFE0E0E0), Color(0xFF616161))
+        PermisoUi.Concedido -> Triple("Permitido", Color(0xFFDFF3E3), Color(0xFF2E7D32))
+        PermisoUi.Denegado -> Triple("Denegado", Color(0xFFFDE2E2), Color(0xFFC62828))
     }
-    Surface(color = color, shape = RoundedCornerShape(50)) {
+    Surface(color = fondo, shape = RoundedCornerShape(6.dp)) {
         Text(
             text = texto,
-            color = Color.White,
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+            color = letra,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
         )
     }
 }
