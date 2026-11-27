@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
 
     val avisos: StateFlow<List<Aviso>> = repo.avisos
+
     private val _eventos = MutableSharedFlow<Aviso>()
     val eventos: SharedFlow<Aviso> = _eventos.asSharedFlow()
 
@@ -31,11 +32,15 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
     private var trabajo: Job? = null
     private val _faltan = MutableStateFlow<Int?>(null)
     val faltan: StateFlow<Int?> = _faltan.asStateFlow()
+
     private val _escuchandoAvion = MutableStateFlow(false)
     val escuchandoAvion: StateFlow<Boolean> = _escuchandoAvion.asStateFlow()
 
     fun permisoRespondido(concedido: Boolean) {
         _permiso.value = if (concedido) PermisoUi.Concedido else PermisoUi.Denegado
+        if (concedido) {
+            _mensaje.value = null
+        }
     }
 
     fun avisarAhora() {
@@ -87,5 +92,9 @@ class AvisosViewModel(private val repo: AvisosRepository) : ViewModel() {
             )
             _eventos.emit(aviso)
         }
+    }
+
+    fun noSePudoMostrar() {
+        _mensaje.value = "Sin permiso: el aviso se guardó en el historial, pero no se mostró"
     }
 }

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -54,21 +55,29 @@ fun PantallaAvisos(vm: AvisosViewModel) {
     val faltan by vm.faltan.collectAsState()
     val escuchando by vm.escuchandoAvion.collectAsState()
     val avisos by vm.avisos.collectAsState()
+    val mensaje by vm.mensaje.collectAsState()
+
     val lanzador = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { concedido ->
         vm.permisoRespondido(concedido)
     }
+
     LaunchedEffect(Unit) {
         if (Notificador.tienePermiso(contexto)) {
             vm.permisoRespondido(true)
         }
     }
+
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
             val mostrado = Notificador.mostrar(contexto, aviso)
+            if (!mostrado) {
+                vm.noSePudoMostrar()
+            }
         }
     }
+
     DisposableEffect(escuchando) {
         if (escuchando) {
             val receptor = ModoAvionReceiver { activo -> vm.alCambiarModoAvion(activo) }
@@ -113,6 +122,29 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     }
                 }) {
                     Text("Permitir notificaciones")
+                }
+                mensaje?.let { texto ->
+                    Surface(
+                        color = MaterialTheme.colorScheme.errorContainer,
+                        shape = RoundedCornerShape(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = texto,
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
+                }
+                if (permiso == PermisoUi.Denegado || mensaje != null) {
+                    OutlinedButton(onClick = {
+                        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                            .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                        contexto.startActivity(intent)
+                    }) {
+                        Text("Abrir ajustes")
+                    }
                 }
             }
 
@@ -162,6 +194,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+
             HistorialAvisos(avisos)
         }
     }
